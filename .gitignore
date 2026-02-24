@@ -1,39 +1,44 @@
 # Dependencies
 node_modules/
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
 
 # Build output
 dist/
+build/
 
-# Environment files
+# Environment
 .env
 .env.local
 .env.*.local
 
-# Test coverage
-coverage/
-
 # Logs
 *.log
 npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# Runtime files
-*.tsbuildinfo
+# Coverage
+coverage/
+.nyc_output/
 
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# IDE files
+# IDE
 .vscode/
 .idea/
+*.swp
+*.swo
 
-# Compiled JavaScript (except config files)
+# OS
+.DS_Store
+Thumbs.db
+
+# JavaScript files (except config files)
 *.js
 !jest.config.js
 !gulpfile.js
 !.eslintrc.js
+
+# Temporary files
+*.tmp
+*.temp
