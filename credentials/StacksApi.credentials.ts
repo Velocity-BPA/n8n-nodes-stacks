@@ -6,6 +6,14 @@ export class StacksApi implements ICredentialType {
 	documentationUrl = 'https://docs.hiro.so/api';
 	properties: INodeProperties[] = [
 		{
+			displayName: 'API Base URL',
+			name: 'baseUrl',
+			type: 'string',
+			default: 'https://api.mainnet.hiro.so',
+			description: 'Base URL for the Stacks API',
+			required: true,
+		},
+		{
 			displayName: 'API Key',
 			name: 'apiKey',
 			type: 'string',
@@ -13,14 +21,8 @@ export class StacksApi implements ICredentialType {
 				password: true,
 			},
 			default: '',
-			description: 'API key for Stacks API authentication (optional for basic operations)',
-		},
-		{
-			displayName: 'Base URL',
-			name: 'baseUrl',
-			type: 'string',
-			default: 'https://stacks-node-api.mainnet.stacks.co',
-			description: 'The base URL for the Stacks API',
+			description: 'Optional API key for higher rate limits and priority access',
+			required: false,
 		},
 	];
 }
