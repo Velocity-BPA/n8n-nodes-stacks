@@ -8,25 +8,25 @@
 >
 > For licensing information, visit https://velobpa.com/licensing or contact licensing@velobpa.com.
 
-An n8n community node for interacting with the Stacks blockchain network. This node provides access to 7 core resources including blocks, transactions, accounts, smart contracts, tokens, network information, and microblocks, enabling comprehensive blockchain automation workflows.
+This community node enables n8n integration with the Stacks blockchain ecosystem, providing access to 7 core resources including smart contracts, NFTs, fungible tokens, stacking operations, transactions, blocks, and BNS names for building comprehensive blockchain automation workflows.
 
 ![n8n Community Node](https://img.shields.io/badge/n8n-Community%20Node-blue)
 ![License](https://img.shields.io/badge/license-BSL--1.1-blue)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)
 ![Stacks](https://img.shields.io/badge/Stacks-Blockchain-orange)
-![Bitcoin](https://img.shields.io/badge/Bitcoin-Layer2-yellow)
-![Smart Contracts](https://img.shields.io/badge/Clarity-Smart%20Contracts-purple)
+![Bitcoin](https://img.shields.io/badge/Bitcoin-Layer%202-yellow)
+![Smart Contracts](https://img.shields.io/badge/Smart%20Contracts-Clarity-purple)
 
 ## Features
 
-- **Comprehensive Blockchain Access** - Full access to blocks, transactions, accounts, and network information
-- **Smart Contract Integration** - Deploy, call, and monitor Clarity smart contracts on the Stacks network
-- **Token & Asset Management** - Query and manage fungible and non-fungible tokens across the network
-- **Real-time Monitoring** - Track microblocks, transaction status, and network health in real-time
-- **Account Analytics** - Retrieve detailed account information, balances, and transaction history
-- **Network Intelligence** - Access network statistics, block times, and consensus information
-- **Flexible Authentication** - Secure API key-based authentication for enterprise usage
-- **Production Ready** - Built with TypeScript for reliability and comprehensive error handling
+- **Smart Contract Interaction** - Deploy, call, and monitor Clarity smart contracts on the Stacks blockchain
+- **NFT Operations** - Manage non-fungible tokens including minting, transfers, and metadata retrieval
+- **Token Management** - Handle fungible token operations, balances, and transfers
+- **Stacking Integration** - Access Bitcoin yield through Stacking delegation and pool operations
+- **Transaction Processing** - Submit, monitor, and analyze blockchain transactions
+- **Block Data Access** - Retrieve block information, heights, and chain data
+- **BNS Name Services** - Interact with Bitcoin Name System for decentralized naming
+- **Real-time Monitoring** - Track blockchain events and state changes
 
 ## Installation
 
@@ -61,152 +61,144 @@ n8n start
 
 | Field | Description | Required |
 |-------|-------------|----------|
-| API Key | Your Stacks API key for authentication | Yes |
-| Base URL | Custom API endpoint (leave empty for default mainnet) | No |
+| API Key | Your Stacks API key for authenticated requests | Yes |
 | Network | Target network (mainnet, testnet) | Yes |
+| API Endpoint | Custom API endpoint URL (optional) | No |
 
 ## Resources & Operations
 
-### 1. Blocks
+### 1. Transactions
 
 | Operation | Description |
 |-----------|-------------|
-| Get Block | Retrieve a specific block by hash or height |
-| List Blocks | Get a list of recent blocks with pagination |
-| Get Block Transactions | Fetch all transactions within a specific block |
-| Get Block by Height | Retrieve block information by block height |
+| Get Transaction | Retrieve transaction details by ID |
+| Get Transactions | List transactions with filtering options |
+| Submit Transaction | Broadcast a signed transaction to the network |
+| Get Transaction Events | Fetch events associated with a transaction |
+| Get Mempool Stats | Retrieve mempool statistics |
+| Get Fee Estimate | Estimate transaction fees |
 
-### 2. Transactions
-
-| Operation | Description |
-|-----------|-------------|
-| Get Transaction | Retrieve transaction details by transaction ID |
-| List Transactions | Get recent transactions with filtering options |
-| Get Transaction Status | Check the current status of a transaction |
-| Broadcast Transaction | Submit a signed transaction to the network |
-| Get Mempool Transactions | Retrieve pending transactions from mempool |
-
-### 3. Accounts
+### 2. Smart Contracts
 
 | Operation | Description |
 |-----------|-------------|
-| Get Account Info | Retrieve account balance and nonce information |
-| Get Account Transactions | List all transactions for a specific account |
-| Get Account Assets | Fetch fungible and non-fungible token holdings |
-| Get Account STX Balance | Get STX token balance for an account |
+| Deploy Contract | Deploy a new Clarity smart contract |
+| Call Contract Function | Execute a contract function call |
+| Get Contract Info | Retrieve contract metadata and source |
+| Get Contract Events | Fetch events emitted by a contract |
+| Get Contract Interface | Get contract's public function interface |
+| Get Contract Source | Retrieve contract source code |
 
-### 4. SmartContracts
-
-| Operation | Description |
-|-----------|-------------|
-| Get Contract Info | Retrieve smart contract details and source code |
-| Call Contract Function | Execute a read-only contract function call |
-| Get Contract Interface | Fetch contract ABI and function signatures |
-| List Contract Events | Get events emitted by a specific contract |
-| Get Contract Source | Retrieve the Clarity source code of a contract |
-
-### 5. TokensAndAssets
+### 3. Non-Fungible Tokens
 
 | Operation | Description |
 |-----------|-------------|
-| Get Fungible Tokens | List all fungible tokens on the network |
-| Get NFT Collections | Retrieve non-fungible token collections |
-| Get Token Metadata | Fetch metadata for specific tokens |
-| Get Token Holders | List holders of a specific token |
-| Get Asset Info | Get detailed information about any asset |
+| Get NFT Holdings | Retrieve NFTs owned by an address |
+| Get NFT History | Fetch transfer history for an NFT |
+| Get NFT Metadata | Retrieve NFT metadata and properties |
+| Get Collection Info | Get information about an NFT collection |
+| Transfer NFT | Transfer NFT ownership |
+| Mint NFT | Create new NFT tokens |
 
-### 6. NetworkInfo
-
-| Operation | Description |
-|-----------|-------------|
-| Get Network Status | Retrieve current network health and statistics |
-| Get Block Time | Get average block time and network metrics |
-| Get Consensus Info | Fetch consensus mechanism details |
-| Get Peer Info | Retrieve network peer information |
-
-### 7. Microblocks
+### 4. Stacking
 
 | Operation | Description |
 |-----------|-------------|
-| Get Microblock | Retrieve a specific microblock by hash |
-| List Microblocks | Get recent microblocks with pagination |
-| Get Microblock Transactions | Fetch transactions within a microblock |
+| Get Stacking Info | Retrieve current stacking cycle information |
+| Delegate STX | Delegate STX tokens for stacking |
+| Get Delegator Info | Fetch delegation details for an address |
+| Get Pool Members | List members of a stacking pool |
+| Get Reward Slots | Retrieve reward slot information |
+| Stack STX | Stack STX tokens directly |
+
+### 5. Blocks
+
+| Operation | Description |
+|-----------|-------------|
+| Get Block | Retrieve block information by height or hash |
+| Get Blocks | List blocks with pagination |
+| Get Latest Block | Get the most recent block |
+| Get Block Transactions | Fetch transactions in a specific block |
+| Get Burn Blocks | Retrieve Bitcoin burn block information |
+
+### 6. Names
+
+| Operation | Description |
+|-----------|-------------|
+| Get Name Info | Retrieve BNS name registration details |
+| Get Names | List registered names with filtering |
+| Get Namespace Info | Fetch namespace configuration |
+| Get Name History | Retrieve name transfer and update history |
+| Resolve Name | Resolve BNS name to zone file data |
+| Get Subdomains | List subdomains for a given name |
+
+### 7. Fungible Tokens
+
+| Operation | Description |
+|-----------|-------------|
+| Get Token Balance | Retrieve token balance for an address |
+| Get Token Info | Fetch token metadata and supply information |
+| Get Token Holders | List addresses holding a specific token |
+| Transfer Tokens | Transfer fungible tokens between addresses |
+| Get Token Transfers | Fetch transfer history for a token |
+| Get Account Balances | Retrieve all token balances for an address |
 
 ## Usage Examples
 
-### Get Latest Block Information
 ```javascript
-// Retrieve the most recent block
-const workflow = {
-  nodes: [{
-    type: 'n8n-nodes-stacks.stacks',
-    parameters: {
-      resource: 'Blocks',
-      operation: 'Get Block',
-      blockIdentifier: 'latest'
-    }
-  }]
-};
+// Deploy a smart contract
+{
+  "resource": "SmartContracts",
+  "operation": "Deploy Contract",
+  "contractName": "my-token",
+  "sourceCode": "(define-fungible-token my-token)",
+  "senderAddress": "SP2J6ZY48GV1EZ5V2V5RB9MP66SW86PYKKNRV9EJ7"
+}
 ```
 
-### Check Account Balance
 ```javascript
-// Get STX balance for a specific address
-const workflow = {
-  nodes: [{
-    type: 'n8n-nodes-stacks.stacks',
-    parameters: {
-      resource: 'Accounts',
-      operation: 'Get Account Info',
-      principal: 'SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE'
-    }
-  }]
-};
+// Stack STX tokens
+{
+  "resource": "Stacking",
+  "operation": "Stack STX",
+  "amount": "1000000000",
+  "poxAddress": "1Xik14zRm29UsyS6DjhYg4iZeZqsDa8D3",
+  "cycles": "12",
+  "senderAddress": "SP2J6ZY48GV1EZ5V2V5RB9MP66SW86PYKKNRV9EJ7"
+}
 ```
 
-### Call Smart Contract Function
 ```javascript
-// Execute a read-only contract function
-const workflow = {
-  nodes: [{
-    type: 'n8n-nodes-stacks.stacks',
-    parameters: {
-      resource: 'SmartContracts',
-      operation: 'Call Contract Function',
-      contractAddress: 'SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE',
-      contractName: 'my-contract',
-      functionName: 'get-balance',
-      arguments: ['SP1HTBVD3JG9C05J7HBJTHGR0GGW7KXW28M5JS8QE']
-    }
-  }]
-};
+// Get NFT holdings
+{
+  "resource": "NonFungibleTokens",
+  "operation": "Get NFT Holdings",
+  "address": "SP2J6ZY48GV1EZ5V2V5RB9MP66SW86PYKKNRV9EJ7",
+  "limit": "50",
+  "offset": "0"
+}
 ```
 
-### Monitor Transaction Status
 ```javascript
-// Track a transaction until confirmation
-const workflow = {
-  nodes: [{
-    type: 'n8n-nodes-stacks.stacks',
-    parameters: {
-      resource: 'Transactions',
-      operation: 'Get Transaction Status',
-      txId: '0x1234567890abcdef1234567890abcdef12345678'
-    }
-  }]
-};
+// Submit transaction
+{
+  "resource": "Transactions",
+  "operation": "Submit Transaction",
+  "txHex": "0x808000000004...",
+  "attachment": "0x123456"
+}
 ```
 
 ## Error Handling
 
 | Error | Description | Solution |
 |-------|-------------|----------|
-| Invalid API Key | Authentication failed with provided API key | Verify API key is correct and active |
-| Network Timeout | Request timed out while connecting to Stacks API | Check network connectivity and API endpoint status |
-| Invalid Address Format | Provided Stacks address format is incorrect | Ensure address follows proper Stacks format (SP...) |
+| Invalid API Key | Authentication failed with provided credentials | Verify API key in credential configuration |
+| Network Unavailable | Cannot connect to Stacks network | Check network selection and API endpoint |
+| Transaction Failed | Transaction rejected by network | Review transaction parameters and account balance |
 | Contract Not Found | Smart contract does not exist at specified address | Verify contract address and deployment status |
-| Rate Limit Exceeded | Too many API requests in a short time period | Implement request throttling or upgrade API plan |
-| Transaction Not Found | Specified transaction ID does not exist | Confirm transaction ID is correct and broadcasted |
+| Insufficient Balance | Account lacks sufficient STX for operation | Check account balance and reduce transaction amount |
+| Invalid Address Format | Provided address is malformed | Ensure address follows Stacks address format (SP/ST prefix) |
 
 ## Development
 
@@ -251,5 +243,5 @@ Contributions are welcome! Please ensure:
 ## Support
 
 - **Issues**: [GitHub Issues](https://github.com/Velocity-BPA/n8n-nodes-stacks/issues)
-- **Stacks API Documentation**: [docs.stacks.co](https://docs.stacks.co)
-- **Stacks Community**: [stacks.org/community](https://stacks.org/community)
+- **Stacks Documentation**: [docs.stacks.co](https://docs.stacks.co)
+- **Stacks Community**: [discord.gg/stacks](https://discord.gg/stacks)
