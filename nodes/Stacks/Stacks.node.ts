@@ -49,75 +49,41 @@ export class Stacks implements INodeType {
         noDataExpression: true,
         options: [
           {
-            name: 'Blocks',
-            value: 'blocks',
-          },
-          {
             name: 'Transactions',
             value: 'transactions',
           },
           {
-            name: 'Accounts',
-            value: 'accounts',
+            name: 'unknown',
+            value: 'unknown',
           },
           {
             name: 'SmartContracts',
             value: 'smartContracts',
           },
           {
-            name: 'TokensAndAssets',
-            value: 'tokensAndAssets',
+            name: 'NonFungibleTokens',
+            value: 'nonFungibleTokens',
           },
           {
-            name: 'NetworkInfo',
-            value: 'networkInfo',
+            name: 'Stacking',
+            value: 'stacking',
           },
           {
-            name: 'Microblocks',
-            value: 'microblocks',
+            name: 'Blocks',
+            value: 'blocks',
+          },
+          {
+            name: 'Names',
+            value: 'names',
+          },
+          {
+            name: 'FungibleTokens',
+            value: 'fungibleTokens',
           }
         ],
-        default: 'blocks',
+        default: 'transactions',
       },
       // Operation dropdowns per resource
-{
-  displayName: 'Operation',
-  name: 'operation',
-  type: 'options',
-  noDataExpression: true,
-  displayOptions: {
-    show: {
-      resource: ['blocks'],
-    },
-  },
-  options: [
-    {
-      name: 'Get Latest Block',
-      value: 'getLatestBlock',
-      description: 'Get the most recent block',
-      action: 'Get latest block',
-    },
-    {
-      name: 'Get Block by Hash',
-      value: 'getBlockByHash',
-      description: 'Get block by hash',
-      action: 'Get block by hash',
-    },
-    {
-      name: 'Get Block by Height',
-      value: 'getBlockByHeight',
-      description: 'Get block by height',
-      action: 'Get block by height',
-    },
-    {
-      name: 'List Blocks',
-      value: 'listBlocks',
-      description: 'Get list of recent blocks',
-      action: 'List blocks',
-    },
-  ],
-  default: 'getLatestBlock',
-},
 {
   displayName: 'Operation',
   name: 'operation',
@@ -130,22 +96,16 @@ export class Stacks implements INodeType {
   },
   options: [
     {
-      name: 'List Transactions',
-      value: 'listTransactions',
+      name: 'Get All Transactions',
+      value: 'getAllTransactions',
       description: 'Get recent transactions',
-      action: 'List transactions',
+      action: 'Get all transactions',
     },
     {
       name: 'Get Transaction',
       value: 'getTransaction',
       description: 'Get transaction by ID',
-      action: 'Get transaction',
-    },
-    {
-      name: 'Broadcast Transaction',
-      value: 'broadcastTransaction',
-      description: 'Broadcast a transaction',
-      action: 'Broadcast transaction',
+      action: 'Get transaction by ID',
     },
     {
       name: 'Get Mempool Transactions',
@@ -154,13 +114,19 @@ export class Stacks implements INodeType {
       action: 'Get mempool transactions',
     },
     {
+      name: 'Broadcast Transaction',
+      value: 'broadcastTransaction',
+      description: 'Broadcast signed transaction',
+      action: 'Broadcast transaction',
+    },
+    {
       name: 'Get Address Transactions',
       value: 'getAddressTransactions',
       description: 'Get transactions for address',
       action: 'Get address transactions',
     },
   ],
-  default: 'listTransactions',
+  default: 'getAllTransactions',
 },
 {
   displayName: 'Operation',
@@ -176,32 +142,26 @@ export class Stacks implements INodeType {
     {
       name: 'Get Account Balance',
       value: 'getAccountBalance',
-      description: 'Get account STX and token balances',
+      description: 'Get STX and token balances for an account',
       action: 'Get account balance',
-    },
-    {
-      name: 'Get Account STX Balance',
-      value: 'getAccountSTXBalance',
-      description: 'Get account STX balance details',
-      action: 'Get account STX balance',
-    },
-    {
-      name: 'Get Account Assets',
-      value: 'getAccountAssets',
-      description: 'Get account asset holdings',
-      action: 'Get account assets',
-    },
-    {
-      name: 'Get Account Nonces',
-      value: 'getAccountNonces',
-      description: 'Get account nonce information',
-      action: 'Get account nonces',
     },
     {
       name: 'Get Account Info',
       value: 'getAccountInfo',
-      description: 'Get core account information',
+      description: 'Get account nonce and balance',
       action: 'Get account info',
+    },
+    {
+      name: 'Get STX Inbound',
+      value: 'getStxInbound',
+      description: 'Get STX received by address',
+      action: 'Get STX inbound',
+    },
+    {
+      name: 'Get Account Assets',
+      value: 'getAccountAssets',
+      description: 'Get fungible and non-fungible tokens for an account',
+      action: 'Get account assets',
     },
   ],
   default: 'getAccountBalance',
@@ -218,21 +178,21 @@ export class Stacks implements INodeType {
   },
   options: [
     {
-      name: 'Get Contract Info',
-      value: 'getContractInfo',
-      description: 'Get contract information',
-      action: 'Get contract info',
+      name: 'Get Contract Details',
+      value: 'getContract',
+      description: 'Get contract details and metadata',
+      action: 'Get contract details',
     },
     {
-      name: 'Call Read Only Function',
+      name: 'Call Read-Only Function',
       value: 'callReadOnlyFunction',
-      description: 'Execute read-only contract function',
-      action: 'Call read only function',
+      description: 'Call a read-only contract function',
+      action: 'Call read-only function',
     },
     {
       name: 'Get Contract Events',
       value: 'getContractEvents',
-      description: 'Get contract events',
+      description: 'Get events emitted by a contract',
       action: 'Get contract events',
     },
     {
@@ -241,14 +201,8 @@ export class Stacks implements INodeType {
       description: 'Get contract source code',
       action: 'Get contract source',
     },
-    {
-      name: 'Get Contract Details',
-      value: 'getContractDetails',
-      description: 'Get detailed contract information',
-      action: 'Get contract details',
-    },
   ],
-  default: 'getContractInfo',
+  default: 'getContract',
 },
 {
   displayName: 'Operation',
@@ -257,86 +211,36 @@ export class Stacks implements INodeType {
   noDataExpression: true,
   displayOptions: {
     show: {
-      resource: ['tokensAndAssets'],
+      resource: ['nonFungibleTokens'],
     },
   },
   options: [
     {
-      name: 'List Fungible Tokens',
-      value: 'listFungibleTokens',
-      description: 'Get fungible token metadata',
-      action: 'List fungible tokens',
+      name: 'Get All NFT Holdings',
+      value: 'getAllNftHoldings',
+      description: 'Get all NFT holdings',
+      action: 'Get all NFT holdings',
     },
     {
-      name: 'List Non-Fungible Tokens',
-      value: 'listNonFungibleTokens',
-      description: 'Get NFT collections',
-      action: 'List non-fungible tokens',
-    },
-    {
-      name: 'Get NFT Holdings',
-      value: 'getNFTHoldings',
-      description: 'Get NFT holdings for address',
-      action: 'Get NFT holdings',
-    },
-    {
-      name: 'Get Fungible Token Metadata',
-      value: 'getFungibleTokenMetadata',
-      description: 'Get FT metadata',
-      action: 'Get fungible token metadata',
+      name: 'Get NFT Events',
+      value: 'getNftEvents',
+      description: 'Get NFT events for address',
+      action: 'Get NFT events for address',
     },
     {
       name: 'Get NFT Mints',
-      value: 'getNFTMints',
+      value: 'getNftMints',
       description: 'Get NFT mint events',
-      action: 'Get NFT mints',
+      action: 'Get NFT mint events',
+    },
+    {
+      name: 'Get NFT History',
+      value: 'getNftHistory',
+      description: 'Get NFT transaction history',
+      action: 'Get NFT transaction history',
     },
   ],
-  default: 'listFungibleTokens',
-},
-{
-	displayName: 'Operation',
-	name: 'operation',
-	type: 'options',
-	noDataExpression: true,
-	displayOptions: {
-		show: {
-			resource: ['networkInfo'],
-		},
-	},
-	options: [
-		{
-			name: 'Get Network Info',
-			value: 'getNetworkInfo',
-			description: 'Get core network information',
-			action: 'Get network info',
-		},
-		{
-			name: 'Get Network Status',
-			value: 'getNetworkStatus',
-			description: 'Get extended network status',
-			action: 'Get network status',
-		},
-		{
-			name: 'Get Transfer Fees',
-			value: 'getTransferFees',
-			description: 'Get current transfer fee estimates',
-			action: 'Get transfer fees',
-		},
-		{
-			name: 'Get Fee Rates',
-			value: 'getFeeRates',
-			description: 'Get current fee rate information',
-			action: 'Get fee rates',
-		},
-		{
-			name: 'Get Network Stats',
-			value: 'getNetworkStats',
-			description: 'Get network statistics',
-			action: 'Get network stats',
-		},
-	],
-	default: 'getNetworkInfo',
+  default: 'getAllNftHoldings',
 },
 {
   displayName: 'Operation',
@@ -345,138 +249,195 @@ export class Stacks implements INodeType {
   noDataExpression: true,
   displayOptions: {
     show: {
-      resource: ['microblocks'],
+      resource: ['stacking'],
     },
   },
   options: [
     {
-      name: 'Get Latest Microblocks',
-      value: 'getLatestMicroblocks',
-      description: 'Get recent microblocks',
-      action: 'Get latest microblocks',
+      name: 'Get Stacking Rewards',
+      value: 'getStackingRewards',
+      description: 'Get stacking rewards for a specific address',
+      action: 'Get stacking rewards for address',
     },
     {
-      name: 'Get Microblock By Hash',
-      value: 'getMicroblockByHash',
-      description: 'Get microblock by hash',
-      action: 'Get microblock by hash',
+      name: 'Get All Stacking Rewards',
+      value: 'getAllStackingRewards',
+      description: 'Get all stacking rewards',
+      action: 'Get all stacking rewards',
     },
     {
-      name: 'Get Unanchored Transactions',
-      value: 'getUnanchoredTransactions',
-      description: 'Get unanchored transactions',
-      action: 'Get unanchored transactions',
+      name: 'Get PoX Info',
+      value: 'getPoxInfo',
+      description: 'Get current PoX (stacking) cycle information',
+      action: 'Get PoX info',
+    },
+    {
+      name: 'Get Total Stacking Rewards',
+      value: 'getTotalStackingRewards',
+      description: 'Get total stacking rewards across all cycles',
+      action: 'Get total stacking rewards',
     },
   ],
-  default: 'getLatestMicroblocks',
+  default: 'getStackingRewards',
+},
+{
+  displayName: 'Operation',
+  name: 'operation',
+  type: 'options',
+  noDataExpression: true,
+  displayOptions: {
+    show: {
+      resource: ['blocks'],
+    },
+  },
+  options: [
+    {
+      name: 'Get Recent Blocks',
+      value: 'getBlocks',
+      description: 'Get recent blocks',
+      action: 'Get recent blocks',
+    },
+    {
+      name: 'Get Block by Hash',
+      value: 'getBlockByHash',
+      description: 'Get block by hash',
+      action: 'Get block by hash',
+    },
+    {
+      name: 'Get Block by Height',
+      value: 'getBlockByHeight',
+      description: 'Get block by height',
+      action: 'Get block by height',
+    },
+    {
+      name: 'Get Block Transactions',
+      value: 'getBlockTransactions',
+      description: 'Get transactions in block',
+      action: 'Get block transactions',
+    },
+  ],
+  default: 'getBlocks',
+},
+{
+  displayName: 'Operation',
+  name: 'operation',
+  type: 'options',
+  noDataExpression: true,
+  displayOptions: {
+    show: {
+      resource: ['names'],
+    },
+  },
+  options: [
+    {
+      name: 'Get Name Info',
+      value: 'getNameInfo',
+      description: 'Get name registration details',
+      action: 'Get name registration details',
+    },
+    {
+      name: 'Get Names By Address',
+      value: 'getNamesByAddress',
+      description: 'Get names owned by address',
+      action: 'Get names owned by address',
+    },
+    {
+      name: 'Get All Namespaces',
+      value: 'getAllNamespaces',
+      description: 'Get all namespaces',
+      action: 'Get all namespaces',
+    },
+    {
+      name: 'Get All Names',
+      value: 'getAllNames',
+      description: 'Get all registered names',
+      action: 'Get all registered names',
+    },
+    {
+      name: 'Get Subdomain Info',
+      value: 'getSubdomainInfo',
+      description: 'Get subdomain information',
+      action: 'Get subdomain information',
+    },
+  ],
+  default: 'getNameInfo',
+},
+{
+  displayName: 'Operation',
+  name: 'operation',
+  type: 'options',
+  noDataExpression: true,
+  displayOptions: {
+    show: {
+      resource: ['fungibleTokens'],
+    },
+  },
+  options: [
+    {
+      name: 'Get Fungible Token Metadata',
+      value: 'getFtMetadata',
+      description: 'Get fungible token metadata',
+      action: 'Get fungible token metadata',
+    },
+    {
+      name: 'Get All Fungible Tokens',
+      value: 'getAllFungibleTokens',
+      description: 'Get all fungible tokens',
+      action: 'Get all fungible tokens',
+    },
+    {
+      name: 'Get Fungible Token Events',
+      value: 'getFtEvents',
+      description: 'Get fungible token events for address',
+      action: 'Get fungible token events',
+    },
+    {
+      name: 'Get Token Supply',
+      value: 'getFtSupply',
+      description: 'Get token supply information',
+      action: 'Get token supply',
+    },
+  ],
+  default: 'getFtMetadata',
 },
       // Parameter definitions
 {
-  displayName: 'Block Hash',
-  name: 'hash',
-  type: 'string',
-  required: true,
-  displayOptions: {
-    show: {
-      resource: ['blocks'],
-      operation: ['getBlockByHash'],
-    },
-  },
-  default: '',
-  description: 'The block hash (hexadecimal format)',
-  placeholder: '0x...',
-},
-{
-  displayName: 'Block Height',
-  name: 'height',
-  type: 'number',
-  required: true,
-  displayOptions: {
-    show: {
-      resource: ['blocks'],
-      operation: ['getBlockByHeight'],
-    },
-  },
-  default: 0,
-  description: 'The block height',
-  typeOptions: {
-    minValue: 0,
-  },
-},
-{
   displayName: 'Limit',
   name: 'limit',
   type: 'number',
+  required: false,
   displayOptions: {
     show: {
-      resource: ['blocks'],
-      operation: ['listBlocks'],
+      resource: ['transactions'],
+      operation: ['getAllTransactions', 'getMempoolTransactions', 'getAddressTransactions'],
     },
   },
   default: 20,
-  description: 'Maximum number of blocks to return',
-  typeOptions: {
-    minValue: 1,
-    maxValue: 200,
-  },
+  description: 'Maximum number of transactions to return',
 },
 {
   displayName: 'Offset',
   name: 'offset',
   type: 'number',
-  displayOptions: {
-    show: {
-      resource: ['blocks'],
-      operation: ['listBlocks'],
-    },
-  },
-  default: 0,
-  description: 'Index of first block to return',
-  typeOptions: {
-    minValue: 0,
-  },
-},
-{
-  displayName: 'Limit',
-  name: 'limit',
-  type: 'number',
+  required: false,
   displayOptions: {
     show: {
       resource: ['transactions'],
-      operation: ['listTransactions', 'getMempoolTransactions', 'getAddressTransactions'],
-    },
-  },
-  default: 20,
-  description: 'Number of transactions to return',
-  typeOptions: {
-    minValue: 1,
-    maxValue: 200,
-  },
-},
-{
-  displayName: 'Offset',
-  name: 'offset',
-  type: 'number',
-  displayOptions: {
-    show: {
-      resource: ['transactions'],
-      operation: ['listTransactions', 'getMempoolTransactions', 'getAddressTransactions'],
+      operation: ['getAllTransactions', 'getMempoolTransactions', 'getAddressTransactions'],
     },
   },
   default: 0,
   description: 'Number of transactions to skip',
-  typeOptions: {
-    minValue: 0,
-  },
 },
 {
   displayName: 'Type',
   name: 'type',
   type: 'options',
+  required: false,
   displayOptions: {
     show: {
       resource: ['transactions'],
-      operation: ['listTransactions'],
+      operation: ['getAllTransactions'],
     },
   },
   options: [
@@ -506,7 +467,7 @@ export class Stacks implements INodeType {
     },
   ],
   default: '',
-  description: 'Filter transactions by type',
+  description: 'Filter by transaction type',
 },
 {
   displayName: 'Transaction ID',
@@ -521,7 +482,6 @@ export class Stacks implements INodeType {
   },
   default: '',
   description: 'The transaction ID to retrieve',
-  placeholder: '0x...',
 },
 {
   displayName: 'Transaction Data',
@@ -535,8 +495,7 @@ export class Stacks implements INodeType {
     },
   },
   default: '',
-  description: 'Hexadecimal-encoded transaction data',
-  placeholder: '0x...',
+  description: 'The serialized transaction data to broadcast',
 },
 {
   displayName: 'Address',
@@ -550,8 +509,7 @@ export class Stacks implements INodeType {
     },
   },
   default: '',
-  description: 'The Stacks address to get transactions for',
-  placeholder: 'SP...',
+  description: 'The address to get transactions for',
 },
 {
   displayName: 'Address',
@@ -561,81 +519,45 @@ export class Stacks implements INodeType {
   displayOptions: {
     show: {
       resource: ['accounts'],
-      operation: ['getAccountBalance'],
+      operation: ['getAccountBalance', 'getAccountInfo', 'getStxInbound', 'getAccountAssets'],
     },
   },
   default: '',
-  description: 'The Stacks address to get balances for',
+  description: 'The Stacks account address',
+  placeholder: 'SP1P72Z3704VMT3DMHPP2CB8TGQWGDBHD3RPR9GZS',
 },
 {
-  displayName: 'Address',
-  name: 'address',
-  type: 'string',
-  required: true,
+  displayName: 'Limit',
+  name: 'limit',
+  type: 'number',
   displayOptions: {
     show: {
       resource: ['accounts'],
-      operation: ['getAccountSTXBalance'],
+      operation: ['getStxInbound', 'getAccountAssets'],
     },
   },
-  default: '',
-  description: 'The Stacks address to get STX balance for',
+  default: 50,
+  description: 'Maximum number of results to return',
+  typeOptions: {
+    minValue: 1,
+    maxValue: 200,
+  },
 },
 {
-  displayName: 'Address',
-  name: 'address',
-  type: 'string',
-  required: true,
+  displayName: 'Offset',
+  name: 'offset',
+  type: 'number',
   displayOptions: {
     show: {
       resource: ['accounts'],
-      operation: ['getAccountAssets'],
+      operation: ['getStxInbound', 'getAccountAssets'],
     },
   },
-  default: '',
-  description: 'The Stacks address to get asset holdings for',
-},
-{
-  displayName: 'Address',
-  name: 'address',
-  type: 'string',
-  required: true,
-  displayOptions: {
-    show: {
-      resource: ['accounts'],
-      operation: ['getAccountNonces'],
-    },
+  default: 0,
+  description: 'Number of results to skip',
+  typeOptions: {
+    minValue: 0,
   },
-  default: '',
-  description: 'The Stacks address to get nonce information for',
-},
-{
-  displayName: 'Address',
-  name: 'address',
-  type: 'string',
-  required: true,
-  displayOptions: {
-    show: {
-      resource: ['accounts'],
-      operation: ['getAccountInfo'],
-    },
-  },
-  default: '',
-  description: 'The Stacks address to get core account information for',
-},
-{
-  displayName: 'Contract ID',
-  name: 'contractId',
-  type: 'string',
-  required: true,
-  displayOptions: {
-    show: {
-      resource: ['smartContracts'],
-      operation: ['getContractInfo'],
-    },
-  },
-  default: '',
-  description: 'The contract identifier',
 },
 {
   displayName: 'Contract Address',
@@ -645,11 +567,11 @@ export class Stacks implements INodeType {
   displayOptions: {
     show: {
       resource: ['smartContracts'],
-      operation: ['callReadOnlyFunction', 'getContractEvents', 'getContractSource', 'getContractDetails'],
+      operation: ['getContract', 'callReadOnlyFunction', 'getContractEvents', 'getContractSource'],
     },
   },
   default: '',
-  description: 'The contract address',
+  description: 'The contract address (principal)',
 },
 {
   displayName: 'Contract Name',
@@ -659,7 +581,7 @@ export class Stacks implements INodeType {
   displayOptions: {
     show: {
       resource: ['smartContracts'],
-      operation: ['callReadOnlyFunction', 'getContractEvents', 'getContractSource', 'getContractDetails'],
+      operation: ['getContract', 'callReadOnlyFunction', 'getContractEvents', 'getContractSource'],
     },
   },
   default: '',
@@ -677,13 +599,12 @@ export class Stacks implements INodeType {
     },
   },
   default: '',
-  description: 'The function name to call',
+  description: 'The name of the function to call',
 },
 {
   displayName: 'Arguments',
   name: 'arguments',
-  type: 'string',
-  required: false,
+  type: 'json',
   displayOptions: {
     show: {
       resource: ['smartContracts'],
@@ -691,27 +612,42 @@ export class Stacks implements INodeType {
     },
   },
   default: '[]',
-  description: 'Function arguments as JSON array',
+  description: 'Arguments to pass to the function as JSON array',
+},
+{
+  displayName: 'Sender Address',
+  name: 'sender',
+  type: 'string',
+  displayOptions: {
+    show: {
+      resource: ['smartContracts'],
+      operation: ['callReadOnlyFunction'],
+    },
+  },
+  default: '',
+  description: 'The sender address for the function call (optional)',
 },
 {
   displayName: 'Limit',
   name: 'limit',
   type: 'number',
-  required: false,
   displayOptions: {
     show: {
       resource: ['smartContracts'],
       operation: ['getContractEvents'],
     },
   },
-  default: 50,
-  description: 'Maximum number of events to return',
+  default: 100,
+  description: 'Number of events to return (max 200)',
+  typeOptions: {
+    minValue: 1,
+    maxValue: 200,
+  },
 },
 {
   displayName: 'Offset',
   name: 'offset',
   type: 'number',
-  required: false,
   displayOptions: {
     show: {
       resource: ['smartContracts'],
@@ -720,32 +656,73 @@ export class Stacks implements INodeType {
   },
   default: 0,
   description: 'Number of events to skip',
+  typeOptions: {
+    minValue: 0,
+  },
+},
+{
+  displayName: 'Network',
+  name: 'network',
+  type: 'options',
+  displayOptions: {
+    show: {
+      resource: ['smartContracts'],
+    },
+  },
+  options: [
+    {
+      name: 'Mainnet',
+      value: 'mainnet',
+    },
+    {
+      name: 'Testnet',
+      value: 'testnet',
+    },
+  ],
+  default: 'mainnet',
+  description: 'The network to use',
+},
+{
+  displayName: 'Asset Identifiers',
+  name: 'assetIdentifiers',
+  type: 'string',
+  required: false,
+  displayOptions: {
+    show: {
+      resource: ['nonFungibleTokens'],
+      operation: ['getAllNftHoldings'],
+    },
+  },
+  default: '',
+  description: 'Comma-separated list of asset identifiers to filter by',
 },
 {
   displayName: 'Limit',
   name: 'limit',
   type: 'number',
+  required: false,
   displayOptions: {
     show: {
-      resource: ['tokensAndAssets'],
-      operation: ['listFungibleTokens', 'listNonFungibleTokens', 'getNFTHoldings', 'getNFTMints'],
+      resource: ['nonFungibleTokens'],
+      operation: ['getAllNftHoldings'],
     },
   },
-  default: 20,
-  description: 'Maximum number of items to return',
+  default: 50,
+  description: 'Maximum number of results to return',
 },
 {
   displayName: 'Offset',
   name: 'offset',
   type: 'number',
+  required: false,
   displayOptions: {
     show: {
-      resource: ['tokensAndAssets'],
-      operation: ['listFungibleTokens', 'listNonFungibleTokens', 'getNFTHoldings', 'getNFTMints'],
+      resource: ['nonFungibleTokens'],
+      operation: ['getAllNftHoldings'],
     },
   },
   default: 0,
-  description: 'Number of items to skip',
+  description: 'Number of results to skip',
 },
 {
   displayName: 'Address',
@@ -754,12 +731,300 @@ export class Stacks implements INodeType {
   required: true,
   displayOptions: {
     show: {
-      resource: ['tokensAndAssets'],
-      operation: ['getNFTHoldings'],
+      resource: ['nonFungibleTokens'],
+      operation: ['getNftEvents'],
     },
   },
   default: '',
-  description: 'The Stacks address to get NFT holdings for',
+  description: 'The address to get NFT events for',
+},
+{
+  displayName: 'Limit',
+  name: 'limit',
+  type: 'number',
+  required: false,
+  displayOptions: {
+    show: {
+      resource: ['nonFungibleTokens'],
+      operation: ['getNftEvents'],
+    },
+  },
+  default: 50,
+  description: 'Maximum number of results to return',
+},
+{
+  displayName: 'Offset',
+  name: 'offset',
+  type: 'number',
+  required: false,
+  displayOptions: {
+    show: {
+      resource: ['nonFungibleTokens'],
+      operation: ['getNftEvents'],
+    },
+  },
+  default: 0,
+  description: 'Number of results to skip',
+},
+{
+  displayName: 'Asset Identifier',
+  name: 'assetIdentifier',
+  type: 'string',
+  required: false,
+  displayOptions: {
+    show: {
+      resource: ['nonFungibleTokens'],
+      operation: ['getNftMints'],
+    },
+  },
+  default: '',
+  description: 'Asset identifier to filter mint events',
+},
+{
+  displayName: 'Limit',
+  name: 'limit',
+  type: 'number',
+  required: false,
+  displayOptions: {
+    show: {
+      resource: ['nonFungibleTokens'],
+      operation: ['getNftMints'],
+    },
+  },
+  default: 50,
+  description: 'Maximum number of results to return',
+},
+{
+  displayName: 'Offset',
+  name: 'offset',
+  type: 'number',
+  required: false,
+  displayOptions: {
+    show: {
+      resource: ['nonFungibleTokens'],
+      operation: ['getNftMints'],
+    },
+  },
+  default: 0,
+  description: 'Number of results to skip',
+},
+{
+  displayName: 'Asset Identifier',
+  name: 'assetIdentifier',
+  type: 'string',
+  required: false,
+  displayOptions: {
+    show: {
+      resource: ['nonFungibleTokens'],
+      operation: ['getNftHistory'],
+    },
+  },
+  default: '',
+  description: 'Asset identifier to filter transaction history',
+},
+{
+  displayName: 'Value',
+  name: 'value',
+  type: 'string',
+  required: false,
+  displayOptions: {
+    show: {
+      resource: ['nonFungibleTokens'],
+      operation: ['getNftHistory'],
+    },
+  },
+  default: '',
+  description: 'Token value to filter by',
+},
+{
+  displayName: 'Limit',
+  name: 'limit',
+  type: 'number',
+  required: false,
+  displayOptions: {
+    show: {
+      resource: ['nonFungibleTokens'],
+      operation: ['getNftHistory'],
+    },
+  },
+  default: 50,
+  description: 'Maximum number of results to return',
+},
+{
+  displayName: 'Offset',
+  name: 'offset',
+  type: 'number',
+  required: false,
+  displayOptions: {
+    show: {
+      resource: ['nonFungibleTokens'],
+      operation: ['getNftHistory'],
+    },
+  },
+  default: 0,
+  description: 'Number of results to skip',
+},
+{
+  displayName: 'Address',
+  name: 'address',
+  type: 'string',
+  required: true,
+  displayOptions: {
+    show: {
+      resource: ['stacking'],
+      operation: ['getStackingRewards'],
+    },
+  },
+  default: '',
+  description: 'The STX address to get stacking rewards for',
+},
+{
+  displayName: 'Limit',
+  name: 'limit',
+  type: 'number',
+  displayOptions: {
+    show: {
+      resource: ['stacking'],
+      operation: ['getStackingRewards', 'getAllStackingRewards'],
+    },
+  },
+  default: 20,
+  description: 'Maximum number of results to return',
+},
+{
+  displayName: 'Offset',
+  name: 'offset',
+  type: 'number',
+  displayOptions: {
+    show: {
+      resource: ['stacking'],
+      operation: ['getStackingRewards', 'getAllStackingRewards'],
+    },
+  },
+  default: 0,
+  description: 'Number of results to skip',
+},
+{
+  displayName: 'Limit',
+  name: 'limit',
+  type: 'number',
+  required: false,
+  displayOptions: {
+    show: {
+      resource: ['blocks'],
+      operation: ['getBlocks', 'getBlockTransactions'],
+    },
+  },
+  default: 20,
+  description: 'Number of results to return',
+  typeOptions: {
+    minValue: 1,
+    maxValue: 200,
+  },
+},
+{
+  displayName: 'Offset',
+  name: 'offset',
+  type: 'number',
+  required: false,
+  displayOptions: {
+    show: {
+      resource: ['blocks'],
+      operation: ['getBlocks', 'getBlockTransactions'],
+    },
+  },
+  default: 0,
+  description: 'Number of results to skip',
+  typeOptions: {
+    minValue: 0,
+  },
+},
+{
+  displayName: 'Block Hash',
+  name: 'hash',
+  type: 'string',
+  required: true,
+  displayOptions: {
+    show: {
+      resource: ['blocks'],
+      operation: ['getBlockByHash', 'getBlockTransactions'],
+    },
+  },
+  default: '',
+  description: 'The block hash',
+},
+{
+  displayName: 'Block Height',
+  name: 'height',
+  type: 'number',
+  required: true,
+  displayOptions: {
+    show: {
+      resource: ['blocks'],
+      operation: ['getBlockByHeight'],
+    },
+  },
+  default: 0,
+  description: 'The block height',
+  typeOptions: {
+    minValue: 0,
+  },
+},
+{
+  displayName: 'Name',
+  name: 'name',
+  type: 'string',
+  required: true,
+  displayOptions: {
+    show: {
+      resource: ['names'],
+      operation: ['getNameInfo'],
+    },
+  },
+  default: '',
+  description: 'The name to lookup registration details for',
+},
+{
+  displayName: 'Address',
+  name: 'address',
+  type: 'string',
+  required: true,
+  displayOptions: {
+    show: {
+      resource: ['names'],
+      operation: ['getNamesByAddress'],
+    },
+  },
+  default: '',
+  description: 'The Bitcoin address to get names for',
+},
+{
+  displayName: 'Page',
+  name: 'page',
+  type: 'number',
+  required: false,
+  displayOptions: {
+    show: {
+      resource: ['names'],
+      operation: ['getAllNames'],
+    },
+  },
+  default: 0,
+  description: 'Page number for pagination',
+},
+{
+  displayName: 'Subdomain',
+  name: 'subdomain',
+  type: 'string',
+  required: true,
+  displayOptions: {
+    show: {
+      resource: ['names'],
+      operation: ['getSubdomainInfo'],
+    },
+  },
+  default: '',
+  description: 'The subdomain to get information for',
 },
 {
   displayName: 'Contract ID',
@@ -768,30 +1033,25 @@ export class Stacks implements INodeType {
   required: true,
   displayOptions: {
     show: {
-      resource: ['tokensAndAssets'],
-      operation: ['getFungibleTokenMetadata'],
+      resource: ['fungibleTokens'],
+      operation: ['getFtMetadata'],
     },
   },
   default: '',
   description: 'The contract identifier for the fungible token',
 },
-// No additional parameters required - all endpoints take no parameters,
 {
   displayName: 'Limit',
   name: 'limit',
   type: 'number',
   displayOptions: {
     show: {
-      resource: ['microblocks'],
-      operation: ['getLatestMicroblocks'],
+      resource: ['fungibleTokens'],
+      operation: ['getAllFungibleTokens'],
     },
   },
-  default: 20,
-  description: 'Max number of microblocks to fetch',
-  typeOptions: {
-    minValue: 1,
-    maxValue: 200,
-  },
+  default: 96,
+  description: 'Max number of tokens to fetch',
 },
 {
   displayName: 'Offset',
@@ -799,30 +1059,26 @@ export class Stacks implements INodeType {
   type: 'number',
   displayOptions: {
     show: {
-      resource: ['microblocks'],
-      operation: ['getLatestMicroblocks'],
+      resource: ['fungibleTokens'],
+      operation: ['getAllFungibleTokens'],
     },
   },
   default: 0,
-  description: 'Index of first microblock to fetch',
-  typeOptions: {
-    minValue: 0,
-  },
+  description: 'Index of first token to fetch',
 },
 {
-  displayName: 'Microblock Hash',
-  name: 'hash',
+  displayName: 'Address',
+  name: 'address',
   type: 'string',
   required: true,
   displayOptions: {
     show: {
-      resource: ['microblocks'],
-      operation: ['getMicroblockByHash'],
+      resource: ['fungibleTokens'],
+      operation: ['getFtEvents'],
     },
   },
   default: '',
-  description: 'Hash of the microblock to retrieve',
-  placeholder: '0x...',
+  description: 'The address to get fungible token events for',
 },
 {
   displayName: 'Limit',
@@ -830,16 +1086,12 @@ export class Stacks implements INodeType {
   type: 'number',
   displayOptions: {
     show: {
-      resource: ['microblocks'],
-      operation: ['getUnanchoredTransactions'],
+      resource: ['fungibleTokens'],
+      operation: ['getFtEvents'],
     },
   },
-  default: 20,
-  description: 'Max number of unanchored transactions to fetch',
-  typeOptions: {
-    minValue: 1,
-    maxValue: 200,
-  },
+  default: 96,
+  description: 'Max number of events to fetch',
 },
 {
   displayName: 'Offset',
@@ -847,15 +1099,26 @@ export class Stacks implements INodeType {
   type: 'number',
   displayOptions: {
     show: {
-      resource: ['microblocks'],
-      operation: ['getUnanchoredTransactions'],
+      resource: ['fungibleTokens'],
+      operation: ['getFtEvents'],
     },
   },
   default: 0,
-  description: 'Index of first transaction to fetch',
-  typeOptions: {
-    minValue: 0,
+  description: 'Index of first event to fetch',
+},
+{
+  displayName: 'Contract ID',
+  name: 'contractId',
+  type: 'string',
+  required: true,
+  displayOptions: {
+    show: {
+      resource: ['fungibleTokens'],
+      operation: ['getFtSupply'],
+    },
   },
+  default: '',
+  description: 'The contract identifier for the fungible token',
 },
     ],
   };
@@ -865,20 +1128,22 @@ export class Stacks implements INodeType {
     const resource = this.getNodeParameter('resource', 0) as string;
 
     switch (resource) {
-      case 'blocks':
-        return [await executeBlocksOperations.call(this, items)];
       case 'transactions':
         return [await executeTransactionsOperations.call(this, items)];
-      case 'accounts':
-        return [await executeAccountsOperations.call(this, items)];
+      case 'unknown':
+        return [await executeunknownOperations.call(this, items)];
       case 'smartContracts':
         return [await executeSmartContractsOperations.call(this, items)];
-      case 'tokensAndAssets':
-        return [await executeTokensAndAssetsOperations.call(this, items)];
-      case 'networkInfo':
-        return [await executeNetworkInfoOperations.call(this, items)];
-      case 'microblocks':
-        return [await executeMicroblocksOperations.call(this, items)];
+      case 'nonFungibleTokens':
+        return [await executeNonFungibleTokensOperations.call(this, items)];
+      case 'stacking':
+        return [await executeStackingOperations.call(this, items)];
+      case 'blocks':
+        return [await executeBlocksOperations.call(this, items)];
+      case 'names':
+        return [await executeNamesOperations.call(this, items)];
+      case 'fungibleTokens':
+        return [await executeFungibleTokensOperations.call(this, items)];
       default:
         throw new NodeOperationError(this.getNode(), `The resource "${resource}" is not supported`);
     }
@@ -889,7 +1154,426 @@ export class Stacks implements INodeType {
 // Resource Handler Functions
 // ============================================================
 
-async function executeBlocksOperations(
+async function executeTransactionsOperations(
+  this: IExecuteFunctions,
+  items: INodeExecutionData[],
+): Promise<INodeExecutionData[]> {
+  const returnData: INodeExecutionData[] = [];
+  const operation = this.getNodeParameter('operation', 0) as string;
+  
+  let credentials: any = {};
+  try {
+    credentials = await this.getCredentials('stacksApi') as any;
+  } catch (error: any) {
+    // Use default base URL if no credentials
+    credentials = {
+      baseUrl: 'https://api.mainnet.hiro.so',
+      apiKey: '',
+    };
+  }
+
+  const baseUrl = credentials.baseUrl || 'https://api.mainnet.hiro.so';
+
+  for (let i = 0; i < items.length; i++) {
+    try {
+      let result: any;
+
+      switch (operation) {
+        case 'getAllTransactions': {
+          const limit = this.getNodeParameter('limit', i, 20) as number;
+          const offset = this.getNodeParameter('offset', i, 0) as number;
+          const type = this.getNodeParameter('type', i, '') as string;
+
+          const queryParams: any = {
+            limit: limit.toString(),
+            offset: offset.toString(),
+          };
+
+          if (type) {
+            queryParams.type = type;
+          }
+
+          const queryString = new URLSearchParams(queryParams).toString();
+          
+          const options: any = {
+            method: 'GET',
+            url: `${baseUrl}/extended/v1/tx?${queryString}`,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            json: true,
+          };
+
+          if (credentials.apiKey) {
+            options.headers['X-API-Key'] = credentials.apiKey;
+          }
+
+          result = await this.helpers.httpRequest(options) as any;
+          break;
+        }
+
+        case 'getTransaction': {
+          const txId = this.getNodeParameter('txId', i) as string;
+
+          const options: any = {
+            method: 'GET',
+            url: `${baseUrl}/extended/v1/tx/${txId}`,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            json: true,
+          };
+
+          if (credentials.apiKey) {
+            options.headers['X-API-Key'] = credentials.apiKey;
+          }
+
+          result = await this.helpers.httpRequest(options) as any;
+          break;
+        }
+
+        case 'getMempoolTransactions': {
+          const limit = this.getNodeParameter('limit', i, 20) as number;
+          const offset = this.getNodeParameter('offset', i, 0) as number;
+
+          const queryParams: any = {
+            limit: limit.toString(),
+            offset: offset.toString(),
+          };
+
+          const queryString = new URLSearchParams(queryParams).toString();
+          
+          const options: any = {
+            method: 'GET',
+            url: `${baseUrl}/extended/v1/tx/mempool?${queryString}`,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            json: true,
+          };
+
+          if (credentials.apiKey) {
+            options.headers['X-API-Key'] = credentials.apiKey;
+          }
+
+          result = await this.helpers.httpRequest(options) as any;
+          break;
+        }
+
+        case 'broadcastTransaction': {
+          const transactionData = this.getNodeParameter('transactionData', i) as string;
+
+          const options: any = {
+            method: 'POST',
+            url: `${baseUrl}/v2/transactions`,
+            headers: {
+              'Content-Type': 'application/octet-stream',
+            },
+            body: transactionData,
+          };
+
+          if (credentials.apiKey) {
+            options.headers['X-API-Key'] = credentials.apiKey;
+          }
+
+          result = await this.helpers.httpRequest(options) as any;
+          break;
+        }
+
+        case 'getAddressTransactions': {
+          const address = this.getNodeParameter('address', i) as string;
+          const limit = this.getNodeParameter('limit', i, 20) as number;
+          const offset = this.getNodeParameter('offset', i, 0) as number;
+
+          const queryParams: any = {
+            limit: limit.toString(),
+            offset: offset.toString(),
+          };
+
+          const queryString = new URLSearchParams(queryParams).toString();
+          
+          const options: any = {
+            method: 'GET',
+            url: `${baseUrl}/extended/v1/address/${address}/transactions?${queryString}`,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            json: true,
+          };
+
+          if (credentials.apiKey) {
+            options.headers['X-API-Key'] = credentials.apiKey;
+          }
+
+          result = await this.helpers.httpRequest(options) as any;
+          break;
+        }
+
+        default:
+          throw new NodeOperationError(
+            this.getNode(),
+            `Unknown operation: ${operation}`,
+            { itemIndex: i }
+          );
+      }
+
+      returnData.push({
+        json: result,
+        pairedItem: { item: i },
+      });
+
+    } catch (error: any) {
+      if (this.continueOnFail()) {
+        returnData.push({
+          json: { 
+            error: error.message,
+            operation,
+            itemIndex: i,
+          },
+          pairedItem: { item: i },
+        });
+      } else {
+        if (error instanceof NodeApiError || error instanceof NodeOperationError) {
+          throw error;
+        }
+        throw new NodeApiError(this.getNode(), error, { itemIndex: i });
+      }
+    }
+  }
+
+  return returnData;
+}
+
+async function executeAccountsOperations(
+  this: IExecuteFunctions,
+  items: INodeExecutionData[],
+): Promise<INodeExecutionData[]> {
+  const returnData: INodeExecutionData[] = [];
+  const operation = this.getNodeParameter('operation', 0) as string;
+  
+  for (let i = 0; i < items.length; i++) {
+    try {
+      let result: any;
+      let options: any = {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        json: true,
+      };
+
+      // Try to get credentials for potential API key (optional for public API)
+      try {
+        const credentials = await this.getCredentials('stacksApi') as any;
+        if (credentials.apiKey) {
+          options.headers['Authorization'] = `Bearer ${credentials.apiKey}`;
+        }
+        if (credentials.baseUrl) {
+          options.baseUrl = credentials.baseUrl;
+        } else {
+          options.baseUrl = 'https://api.mainnet.hiro.so';
+        }
+      } catch (error: any) {
+        // No credentials configured, use default mainnet URL
+        options.baseUrl = 'https://api.mainnet.hiro.so';
+      }
+
+      switch (operation) {
+        case 'getAccountBalance': {
+          const address = this.getNodeParameter('address', i) as string;
+          options.url = `${options.baseUrl}/extended/v1/address/${address}/balances`;
+          result = await this.helpers.httpRequest(options) as any;
+          break;
+        }
+
+        case 'getAccountInfo': {
+          const address = this.getNodeParameter('address', i) as string;
+          options.url = `${options.baseUrl}/v2/accounts/${address}`;
+          result = await this.helpers.httpRequest(options) as any;
+          break;
+        }
+
+        case 'getStxInbound': {
+          const address = this.getNodeParameter('address', i) as string;
+          const limit = this.getNodeParameter('limit', i, 50) as number;
+          const offset = this.getNodeParameter('offset', i, 0) as number;
+          
+          const queryParams = new URLSearchParams();
+          queryParams.append('limit', limit.toString());
+          queryParams.append('offset', offset.toString());
+          
+          options.url = `${options.baseUrl}/extended/v1/address/${address}/stx_inbound?${queryParams.toString()}`;
+          result = await this.helpers.httpRequest(options) as any;
+          break;
+        }
+
+        case 'getAccountAssets': {
+          const address = this.getNodeParameter('address', i) as string;
+          const limit = this.getNodeParameter('limit', i, 50) as number;
+          const offset = this.getNodeParameter('offset', i, 0) as number;
+          
+          const queryParams = new URLSearchParams();
+          queryParams.append('limit', limit.toString());
+          queryParams.append('offset', offset.toString());
+          
+          options.url = `${options.baseUrl}/extended/v1/address/${address}/assets?${queryParams.toString()}`;
+          result = await this.helpers.httpRequest(options) as any;
+          break;
+        }
+
+        default:
+          throw new NodeOperationError(this.getNode(), `Unknown operation: ${operation}`);
+      }
+
+      returnData.push({
+        json: result,
+        pairedItem: { item: i },
+      });
+
+    } catch (error: any) {
+      if (this.continueOnFail()) {
+        returnData.push({
+          json: { error: error.message },
+          pairedItem: { item: i },
+        });
+      } else {
+        if (error.response && error.response.body) {
+          throw new NodeApiError(this.getNode(), error.response.body, { itemIndex: i });
+        }
+        throw new NodeOperationError(this.getNode(), error.message, { itemIndex: i });
+      }
+    }
+  }
+
+  return returnData;
+}
+
+async function executeSmartContractsOperations(
+  this: IExecuteFunctions,
+  items: INodeExecutionData[],
+): Promise<INodeExecutionData[]> {
+  const returnData: INodeExecutionData[] = [];
+  const operation = this.getNodeParameter('operation', 0) as string;
+
+  for (let i = 0; i < items.length; i++) {
+    try {
+      let result: any;
+      const network = this.getNodeParameter('network', i) as string;
+      const baseUrl = network === 'testnet' 
+        ? 'https://api.testnet.hiro.so' 
+        : 'https://api.mainnet.hiro.so';
+
+      switch (operation) {
+        case 'getContract': {
+          const contractAddress = this.getNodeParameter('contractAddress', i) as string;
+          const contractName = this.getNodeParameter('contractName', i) as string;
+
+          const options: any = {
+            method: 'GET',
+            url: `${baseUrl}/extended/v1/contract/${contractAddress}.${contractName}`,
+            json: true,
+          };
+
+          result = await this.helpers.httpRequest(options) as any;
+          break;
+        }
+
+        case 'callReadOnlyFunction': {
+          const contractAddress = this.getNodeParameter('contractAddress', i) as string;
+          const contractName = this.getNodeParameter('contractName', i) as string;
+          const functionName = this.getNodeParameter('functionName', i) as string;
+          const argumentsParam = this.getNodeParameter('arguments', i, '[]') as string;
+          const sender = this.getNodeParameter('sender', i, '') as string;
+
+          let parsedArguments: any[];
+          try {
+            parsedArguments = JSON.parse(argumentsParam);
+          } catch (error: any) {
+            throw new NodeOperationError(this.getNode(), 'Invalid JSON in arguments parameter');
+          }
+
+          const body: any = {
+            arguments: parsedArguments,
+          };
+
+          if (sender) {
+            body.sender = sender;
+          }
+
+          const options: any = {
+            method: 'POST',
+            url: `${baseUrl}/v2/contracts/call-read/${contractAddress}/${contractName}/${functionName}`,
+            body: body,
+            json: true,
+          };
+
+          result = await this.helpers.httpRequest(options) as any;
+          break;
+        }
+
+        case 'getContractEvents': {
+          const contractAddress = this.getNodeParameter('contractAddress', i) as string;
+          const contractName = this.getNodeParameter('contractName', i) as string;
+          const limit = this.getNodeParameter('limit', i, 100) as number;
+          const offset = this.getNodeParameter('offset', i, 0) as number;
+
+          const queryParams = new URLSearchParams({
+            limit: limit.toString(),
+            offset: offset.toString(),
+          });
+
+          const options: any = {
+            method: 'GET',
+            url: `${baseUrl}/extended/v1/contract/${contractAddress}.${contractName}/events?${queryParams}`,
+            json: true,
+          };
+
+          result = await this.helpers.httpRequest(options) as any;
+          break;
+        }
+
+        case 'getContractSource': {
+          const contractAddress = this.getNodeParameter('contractAddress', i) as string;
+          const contractName = this.getNodeParameter('contractName', i) as string;
+
+          const options: any = {
+            method: 'GET',
+            url: `${baseUrl}/v2/contracts/source/${contractAddress}/${contractName}`,
+            json: true,
+          };
+
+          result = await this.helpers.httpRequest(options) as any;
+          break;
+        }
+
+        default:
+          throw new NodeOperationError(this.getNode(), `Unknown operation: ${operation}`);
+      }
+
+      returnData.push({
+        json: result,
+        pairedItem: { item: i },
+      });
+
+    } catch (error: any) {
+      if (this.continueOnFail()) {
+        returnData.push({
+          json: { error: error.message },
+          pairedItem: { item: i },
+        });
+      } else {
+        if (error.httpCode) {
+          throw new NodeApiError(this.getNode(), error);
+        }
+        throw new NodeOperationError(this.getNode(), error.message);
+      }
+    }
+  }
+
+  return returnData;
+}
+
+async function executeNonFungibleTokensOperations(
   this: IExecuteFunctions,
   items: INodeExecutionData[],
 ): Promise<INodeExecutionData[]> {
@@ -900,18 +1584,345 @@ async function executeBlocksOperations(
   for (let i = 0; i < items.length; i++) {
     try {
       let result: any;
+      const baseUrl = credentials?.baseUrl || 'https://api.mainnet.hiro.so';
 
       switch (operation) {
-        case 'getLatestBlock': {
+        case 'getAllNftHoldings': {
+          const assetIdentifiers = this.getNodeParameter('assetIdentifiers', i, '') as string;
+          const limit = this.getNodeParameter('limit', i, 50) as number;
+          const offset = this.getNodeParameter('offset', i, 0) as number;
+
+          const queryParams: any = {};
+          if (assetIdentifiers) {
+            queryParams.asset_identifiers = assetIdentifiers;
+          }
+          if (limit) {
+            queryParams.limit = limit.toString();
+          }
+          if (offset) {
+            queryParams.offset = offset.toString();
+          }
+
+          const queryString = new URLSearchParams(queryParams).toString();
+          const url = `${baseUrl}/extended/v1/tokens/nft/holdings${queryString ? '?' + queryString : ''}`;
+
           const options: any = {
             method: 'GET',
-            url: `${credentials.baseUrl}/extended/v1/block`,
+            url,
             headers: {
-              'Authorization': `Bearer ${credentials.apiKey}`,
               'Content-Type': 'application/json',
             },
             json: true,
           };
+
+          if (credentials?.apiKey) {
+            options.headers['X-API-Key'] = credentials.apiKey;
+          }
+
+          result = await this.helpers.httpRequest(options) as any;
+          break;
+        }
+
+        case 'getNftEvents': {
+          const address = this.getNodeParameter('address', i) as string;
+          const limit = this.getNodeParameter('limit', i, 50) as number;
+          const offset = this.getNodeParameter('offset', i, 0) as number;
+
+          const queryParams: any = {};
+          if (limit) {
+            queryParams.limit = limit.toString();
+          }
+          if (offset) {
+            queryParams.offset = offset.toString();
+          }
+
+          const queryString = new URLSearchParams(queryParams).toString();
+          const url = `${baseUrl}/extended/v1/address/${address}/nft_events${queryString ? '?' + queryString : ''}`;
+
+          const options: any = {
+            method: 'GET',
+            url,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            json: true,
+          };
+
+          if (credentials?.apiKey) {
+            options.headers['X-API-Key'] = credentials.apiKey;
+          }
+
+          result = await this.helpers.httpRequest(options) as any;
+          break;
+        }
+
+        case 'getNftMints': {
+          const assetIdentifier = this.getNodeParameter('assetIdentifier', i, '') as string;
+          const limit = this.getNodeParameter('limit', i, 50) as number;
+          const offset = this.getNodeParameter('offset', i, 0) as number;
+
+          const queryParams: any = {};
+          if (assetIdentifier) {
+            queryParams.asset_identifier = assetIdentifier;
+          }
+          if (limit) {
+            queryParams.limit = limit.toString();
+          }
+          if (offset) {
+            queryParams.offset = offset.toString();
+          }
+
+          const queryString = new URLSearchParams(queryParams).toString();
+          const url = `${baseUrl}/extended/v1/tokens/nft/mints${queryString ? '?' + queryString : ''}`;
+
+          const options: any = {
+            method: 'GET',
+            url,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            json: true,
+          };
+
+          if (credentials?.apiKey) {
+            options.headers['X-API-Key'] = credentials.apiKey;
+          }
+
+          result = await this.helpers.httpRequest(options) as any;
+          break;
+        }
+
+        case 'getNftHistory': {
+          const assetIdentifier = this.getNodeParameter('assetIdentifier', i, '') as string;
+          const value = this.getNodeParameter('value', i, '') as string;
+          const limit = this.getNodeParameter('limit', i, 50) as number;
+          const offset = this.getNodeParameter('offset', i, 0) as number;
+
+          const queryParams: any = {};
+          if (assetIdentifier) {
+            queryParams.asset_identifier = assetIdentifier;
+          }
+          if (value) {
+            queryParams.value = value;
+          }
+          if (limit) {
+            queryParams.limit = limit.toString();
+          }
+          if (offset) {
+            queryParams.offset = offset.toString();
+          }
+
+          const queryString = new URLSearchParams(queryParams).toString();
+          const url = `${baseUrl}/extended/v1/tokens/nft/history${queryString ? '?' + queryString : ''}`;
+
+          const options: any = {
+            method: 'GET',
+            url,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            json: true,
+          };
+
+          if (credentials?.apiKey) {
+            options.headers['X-API-Key'] = credentials.apiKey;
+          }
+
+          result = await this.helpers.httpRequest(options) as any;
+          break;
+        }
+
+        default:
+          throw new NodeOperationError(this.getNode(), `Unknown operation: ${operation}`);
+      }
+
+      returnData.push({ json: result, pairedItem: { item: i } });
+    } catch (error: any) {
+      if (this.continueOnFail()) {
+        returnData.push({ 
+          json: { error: error.message }, 
+          pairedItem: { item: i } 
+        });
+      } else {
+        if (error.cause?.response?.status) {
+          throw new NodeApiError(this.getNode(), error);
+        }
+        throw new NodeOperationError(this.getNode(), error.message);
+      }
+    }
+  }
+
+  return returnData;
+}
+
+async function executeStackingOperations(
+  this: IExecuteFunctions,
+  items: INodeExecutionData[],
+): Promise<INodeExecutionData[]> {
+  const returnData: INodeExecutionData[] = [];
+  const operation = this.getNodeParameter('operation', 0) as string;
+  const credentials = await this.getCredentials('stacksApi') as any;
+
+  for (let i = 0; i < items.length; i++) {
+    try {
+      let result: any;
+      
+      switch (operation) {
+        case 'getStackingRewards': {
+          const address = this.getNodeParameter('address', i) as string;
+          const limit = this.getNodeParameter('limit', i, 20) as number;
+          const offset = this.getNodeParameter('offset', i, 0) as number;
+
+          const options: any = {
+            method: 'GET',
+            url: `${credentials.baseUrl}/extended/v1/burnchain/reward_slot_holders/${address}`,
+            qs: {
+              limit,
+              offset,
+            },
+            headers: {
+              'Accept': 'application/json',
+            },
+            json: true,
+          };
+
+          if (credentials.apiKey) {
+            options.headers['Authorization'] = `Bearer ${credentials.apiKey}`;
+          }
+
+          result = await this.helpers.httpRequest(options) as any;
+          break;
+        }
+
+        case 'getAllStackingRewards': {
+          const limit = this.getNodeParameter('limit', i, 20) as number;
+          const offset = this.getNodeParameter('offset', i, 0) as number;
+
+          const options: any = {
+            method: 'GET',
+            url: `${credentials.baseUrl}/extended/v1/burnchain/rewards`,
+            qs: {
+              limit,
+              offset,
+            },
+            headers: {
+              'Accept': 'application/json',
+            },
+            json: true,
+          };
+
+          if (credentials.apiKey) {
+            options.headers['Authorization'] = `Bearer ${credentials.apiKey}`;
+          }
+
+          result = await this.helpers.httpRequest(options) as any;
+          break;
+        }
+
+        case 'getPoxInfo': {
+          const options: any = {
+            method: 'GET',
+            url: `${credentials.baseUrl}/v2/pox`,
+            headers: {
+              'Accept': 'application/json',
+            },
+            json: true,
+          };
+
+          if (credentials.apiKey) {
+            options.headers['Authorization'] = `Bearer ${credentials.apiKey}`;
+          }
+
+          result = await this.helpers.httpRequest(options) as any;
+          break;
+        }
+
+        case 'getTotalStackingRewards': {
+          const options: any = {
+            method: 'GET',
+            url: `${credentials.baseUrl}/extended/v1/burnchain/rewards/total`,
+            headers: {
+              'Accept': 'application/json',
+            },
+            json: true,
+          };
+
+          if (credentials.apiKey) {
+            options.headers['Authorization'] = `Bearer ${credentials.apiKey}`;
+          }
+
+          result = await this.helpers.httpRequest(options) as any;
+          break;
+        }
+
+        default:
+          throw new NodeOperationError(this.getNode(), `Unknown operation: ${operation}`);
+      }
+
+      returnData.push({ json: result, pairedItem: { item: i } });
+    } catch (error: any) {
+      if (this.continueOnFail()) {
+        returnData.push({ 
+          json: { 
+            error: error.message,
+            operation,
+          }, 
+          pairedItem: { item: i } 
+        });
+      } else {
+        if (error.httpCode) {
+          throw new NodeApiError(this.getNode(), error);
+        }
+        throw new NodeOperationError(this.getNode(), error.message);
+      }
+    }
+  }
+
+  return returnData;
+}
+
+async function executeBlocksOperations(
+  this: IExecuteFunctions,
+  items: INodeExecutionData[],
+): Promise<INodeExecutionData[]> {
+  const returnData: INodeExecutionData[] = [];
+  const operation = this.getNodeParameter('operation', 0) as string;
+  
+  // Get credentials (optional for public API)
+  let credentials: any = null;
+  try {
+    credentials = await this.getCredentials('stacksApi') as any;
+  } catch (error: any) {
+    // Credentials are optional for public API access
+  }
+
+  const baseUrl = credentials?.baseUrl || 'https://api.mainnet.hiro.so';
+
+  for (let i = 0; i < items.length; i++) {
+    try {
+      let result: any;
+      
+      switch (operation) {
+        case 'getBlocks': {
+          const limit = this.getNodeParameter('limit', i, 20) as number;
+          const offset = this.getNodeParameter('offset', i, 0) as number;
+          
+          const options: any = {
+            method: 'GET',
+            url: `${baseUrl}/extended/v1/block`,
+            qs: {
+              limit,
+              offset,
+            },
+            json: true,
+          };
+
+          if (credentials?.apiKey) {
+            options.headers = {
+              'X-API-Key': credentials.apiKey,
+            };
+          }
+
           result = await this.helpers.httpRequest(options) as any;
           break;
         }
@@ -919,24 +1930,18 @@ async function executeBlocksOperations(
         case 'getBlockByHash': {
           const hash = this.getNodeParameter('hash', i) as string;
           
-          if (!hash) {
-            throw new NodeOperationError(this.getNode(), 'Block hash is required');
-          }
-          
-          // Validate hash format (should be hexadecimal)
-          if (!/^0x[a-fA-F0-9]+$/.test(hash)) {
-            throw new NodeOperationError(this.getNode(), 'Block hash must be in hexadecimal format (0x...)');
-          }
-
           const options: any = {
             method: 'GET',
-            url: `${credentials.baseUrl}/extended/v1/block/${hash}`,
-            headers: {
-              'Authorization': `Bearer ${credentials.apiKey}`,
-              'Content-Type': 'application/json',
-            },
+            url: `${baseUrl}/extended/v1/block/${hash}`,
             json: true,
           };
+
+          if (credentials?.apiKey) {
+            options.headers = {
+              'X-API-Key': credentials.apiKey,
+            };
+          }
+
           result = await this.helpers.httpRequest(options) as any;
           break;
         }
@@ -944,45 +1949,43 @@ async function executeBlocksOperations(
         case 'getBlockByHeight': {
           const height = this.getNodeParameter('height', i) as number;
           
-          if (height < 0) {
-            throw new NodeOperationError(this.getNode(), 'Block height must be a non-negative number');
-          }
-
           const options: any = {
             method: 'GET',
-            url: `${credentials.baseUrl}/extended/v1/block/by_height/${height}`,
-            headers: {
-              'Authorization': `Bearer ${credentials.apiKey}`,
-              'Content-Type': 'application/json',
-            },
+            url: `${baseUrl}/extended/v1/block/by_height/${height}`,
             json: true,
           };
+
+          if (credentials?.apiKey) {
+            options.headers = {
+              'X-API-Key': credentials.apiKey,
+            };
+          }
+
           result = await this.helpers.httpRequest(options) as any;
           break;
         }
 
-        case 'listBlocks': {
+        case 'getBlockTransactions': {
+          const hash = this.getNodeParameter('hash', i) as string;
           const limit = this.getNodeParameter('limit', i, 20) as number;
           const offset = this.getNodeParameter('offset', i, 0) as number;
-
-          const queryParams = new URLSearchParams();
-          if (limit !== 20) queryParams.append('limit', limit.toString());
-          if (offset !== 0) queryParams.append('offset', offset.toString());
-
-          const queryString = queryParams.toString();
-          const url = queryString 
-            ? `${credentials.baseUrl}/extended/v1/block?${queryString}`
-            : `${credentials.baseUrl}/extended/v1/block`;
-
+          
           const options: any = {
             method: 'GET',
-            url,
-            headers: {
-              'Authorization': `Bearer ${credentials.apiKey}`,
-              'Content-Type': 'application/json',
+            url: `${baseUrl}/extended/v1/block/${hash}/transactions`,
+            qs: {
+              limit,
+              offset,
             },
             json: true,
           };
+
+          if (credentials?.apiKey) {
+            options.headers = {
+              'X-API-Key': credentials.apiKey,
+            };
+          }
+
           result = await this.helpers.httpRequest(options) as any;
           break;
         }
@@ -1003,13 +2006,10 @@ async function executeBlocksOperations(
           pairedItem: { item: i } 
         });
       } else {
-        if (error.response?.status === 404) {
-          throw new NodeApiError(this.getNode(), error, {
-            message: 'Block not found',
-            description: 'The requested block could not be found',
-          });
+        if (error.httpCode) {
+          throw new NodeApiError(this.getNode(), error);
         }
-        throw new NodeApiError(this.getNode(), error);
+        throw new NodeOperationError(this.getNode(), error.message);
       }
     }
   }
@@ -1017,141 +2017,128 @@ async function executeBlocksOperations(
   return returnData;
 }
 
-async function executeTransactionsOperations(
+async function executeNamesOperations(
   this: IExecuteFunctions,
   items: INodeExecutionData[],
 ): Promise<INodeExecutionData[]> {
   const returnData: INodeExecutionData[] = [];
   const operation = this.getNodeParameter('operation', 0) as string;
-  const credentials = await this.getCredentials('stacksApi') as any;
+  
+  let credentials: any = {};
+  try {
+    credentials = await this.getCredentials('stacksApi') as any;
+  } catch (error: any) {
+    // Use default base URL if no credentials provided
+    credentials = {
+      baseUrl: 'https://api.mainnet.hiro.so',
+      apiKey: '',
+    };
+  }
+
+  const baseUrl = credentials.baseUrl || 'https://api.mainnet.hiro.so';
 
   for (let i = 0; i < items.length; i++) {
     try {
       let result: any;
-
+      
       switch (operation) {
-        case 'listTransactions': {
-          const limit = this.getNodeParameter('limit', i) as number;
-          const offset = this.getNodeParameter('offset', i) as number;
-          const type = this.getNodeParameter('type', i) as string;
-
-          const queryParams: any = {
-            limit: limit.toString(),
-            offset: offset.toString(),
-          };
-
-          if (type) {
-            queryParams.type = type;
-          }
-
-          const queryString = new URLSearchParams(queryParams).toString();
-
+        case 'getNameInfo': {
+          const name = this.getNodeParameter('name', i) as string;
+          
           const options: any = {
             method: 'GET',
-            url: `${credentials.baseUrl}/extended/v1/tx?${queryString}`,
+            url: `${baseUrl}/v1/names/${encodeURIComponent(name)}`,
             headers: {
-              'Authorization': `Bearer ${credentials.apiKey}`,
-              'Content-Type': 'application/json',
+              'Accept': 'application/json',
             },
             json: true,
           };
 
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'getTransaction': {
-          const txId = this.getNodeParameter('txId', i) as string;
-
-          if (!txId.startsWith('0x')) {
-            throw new NodeOperationError(this.getNode(), 'Transaction ID must start with 0x');
+          if (credentials.apiKey) {
+            options.headers['Authorization'] = `Bearer ${credentials.apiKey}`;
           }
 
-          const options: any = {
-            method: 'GET',
-            url: `${credentials.baseUrl}/extended/v1/tx/${txId}`,
-            headers: {
-              'Authorization': `Bearer ${credentials.apiKey}`,
-              'Content-Type': 'application/json',
-            },
-            json: true,
-          };
-
           result = await this.helpers.httpRequest(options) as any;
           break;
         }
 
-        case 'broadcastTransaction': {
-          const transactionData = this.getNodeParameter('transactionData', i) as string;
-
-          if (!transactionData.startsWith('0x')) {
-            throw new NodeOperationError(this.getNode(), 'Transaction data must be hexadecimal-encoded and start with 0x');
-          }
-
-          const options: any = {
-            method: 'POST',
-            url: `${credentials.baseUrl}/v2/transactions`,
-            headers: {
-              'Authorization': `Bearer ${credentials.apiKey}`,
-              'Content-Type': 'application/octet-stream',
-            },
-            body: transactionData,
-          };
-
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'getMempoolTransactions': {
-          const limit = this.getNodeParameter('limit', i) as number;
-          const offset = this.getNodeParameter('offset', i) as number;
-
-          const queryParams: any = {
-            limit: limit.toString(),
-            offset: offset.toString(),
-          };
-
-          const queryString = new URLSearchParams(queryParams).toString();
-
-          const options: any = {
-            method: 'GET',
-            url: `${credentials.baseUrl}/extended/v1/tx/mempool?${queryString}`,
-            headers: {
-              'Authorization': `Bearer ${credentials.apiKey}`,
-              'Content-Type': 'application/json',
-            },
-            json: true,
-          };
-
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'getAddressTransactions': {
+        case 'getNamesByAddress': {
           const address = this.getNodeParameter('address', i) as string;
-          const limit = this.getNodeParameter('limit', i) as number;
-          const offset = this.getNodeParameter('offset', i) as number;
-
-          if (!address.startsWith('SP') && !address.startsWith('SM')) {
-            throw new NodeOperationError(this.getNode(), 'Invalid Stacks address format. Address must start with SP or SM');
-          }
-
-          const queryParams: any = {
-            limit: limit.toString(),
-            offset: offset.toString(),
-          };
-
-          const queryString = new URLSearchParams(queryParams).toString();
-
+          
           const options: any = {
             method: 'GET',
-            url: `${credentials.baseUrl}/extended/v1/address/${address}/transactions?${queryString}`,
+            url: `${baseUrl}/v1/addresses/bitcoin/${encodeURIComponent(address)}`,
             headers: {
-              'Authorization': `Bearer ${credentials.apiKey}`,
-              'Content-Type': 'application/json',
+              'Accept': 'application/json',
             },
             json: true,
           };
+
+          if (credentials.apiKey) {
+            options.headers['Authorization'] = `Bearer ${credentials.apiKey}`;
+          }
+
+          result = await this.helpers.httpRequest(options) as any;
+          break;
+        }
+
+        case 'getAllNamespaces': {
+          const options: any = {
+            method: 'GET',
+            url: `${baseUrl}/v1/namespaces`,
+            headers: {
+              'Accept': 'application/json',
+            },
+            json: true,
+          };
+
+          if (credentials.apiKey) {
+            options.headers['Authorization'] = `Bearer ${credentials.apiKey}`;
+          }
+
+          result = await this.helpers.httpRequest(options) as any;
+          break;
+        }
+
+        case 'getAllNames': {
+          const page = this.getNodeParameter('page', i, 0) as number;
+          
+          const options: any = {
+            method: 'GET',
+            url: `${baseUrl}/v1/names`,
+            headers: {
+              'Accept': 'application/json',
+            },
+            json: true,
+          };
+
+          if (page > 0) {
+            options.url += `?page=${page}`;
+          }
+
+          if (credentials.apiKey) {
+            options.headers['Authorization'] = `Bearer ${credentials.apiKey}`;
+          }
+
+          result = await this.helpers.httpRequest(options) as any;
+          break;
+        }
+
+        case 'getSubdomainInfo': {
+          const subdomain = this.getNodeParameter('subdomain', i) as string;
+          
+          const options: any = {
+            method: 'GET',
+            url: `${baseUrl}/v1/subdomains/${encodeURIComponent(subdomain)}`,
+            headers: {
+              'Accept': 'application/json',
+            },
+            json: true,
+          };
+
+          if (credentials.apiKey) {
+            options.headers['Authorization'] = `Bearer ${credentials.apiKey}`;
+          }
 
           result = await this.helpers.httpRequest(options) as any;
           break;
@@ -1181,317 +2168,52 @@ async function executeTransactionsOperations(
   return returnData;
 }
 
-function validateStacksAddress(address: string): boolean {
-  if (!address || typeof address !== 'string') {
-    return false;
-  }
-  
-  // Basic Stacks address validation - starts with SP or SM and is proper length
-  const stacksAddressRegex = /^S[PM][0-9A-HJKMNP-TV-Z]{39}$/;
-  return stacksAddressRegex.test(address);
-}
-
-async function executeAccountsOperations(
+async function executeFungibleTokensOperations(
   this: IExecuteFunctions,
   items: INodeExecutionData[],
 ): Promise<INodeExecutionData[]> {
   const returnData: INodeExecutionData[] = [];
   const operation = this.getNodeParameter('operation', 0) as string;
-  const credentials = await this.getCredentials('stacksApi') as any;
+
+  let credentials: any = {};
+  try {
+    credentials = await this.getCredentials('stacksApi') as any;
+  } catch (error: any) {
+    // Use default values if no credentials provided
+    credentials = {
+      baseUrl: 'https://api.mainnet.hiro.so',
+      apiKey: '',
+    };
+  }
 
   for (let i = 0; i < items.length; i++) {
     try {
       let result: any;
       
       switch (operation) {
-        case 'getAccountBalance': {
-          const address = this.getNodeParameter('address', i) as string;
-          
-          if (!validateStacksAddress(address)) {
-            throw new NodeOperationError(this.getNode(), `Invalid Stacks address: ${address}`);
-          }
-
-          const options: any = {
-            method: 'GET',
-            url: `${credentials.baseUrl}/extended/v1/address/${address}/balances`,
-            headers: {
-              'Authorization': `Bearer ${credentials.apiKey}`,
-              'Content-Type': 'application/json',
-            },
-            json: true,
-          };
-
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'getAccountSTXBalance': {
-          const address = this.getNodeParameter('address', i) as string;
-          
-          if (!validateStacksAddress(address)) {
-            throw new NodeOperationError(this.getNode(), `Invalid Stacks address: ${address}`);
-          }
-
-          const options: any = {
-            method: 'GET',
-            url: `${credentials.baseUrl}/extended/v1/address/${address}/stx`,
-            headers: {
-              'Authorization': `Bearer ${credentials.apiKey}`,
-              'Content-Type': 'application/json',
-            },
-            json: true,
-          };
-
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'getAccountAssets': {
-          const address = this.getNodeParameter('address', i) as string;
-          
-          if (!validateStacksAddress(address)) {
-            throw new NodeOperationError(this.getNode(), `Invalid Stacks address: ${address}`);
-          }
-
-          const options: any = {
-            method: 'GET',
-            url: `${credentials.baseUrl}/extended/v1/address/${address}/assets`,
-            headers: {
-              'Authorization': `Bearer ${credentials.apiKey}`,
-              'Content-Type': 'application/json',
-            },
-            json: true,
-          };
-
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'getAccountNonces': {
-          const address = this.getNodeParameter('address', i) as string;
-          
-          if (!validateStacksAddress(address)) {
-            throw new NodeOperationError(this.getNode(), `Invalid Stacks address: ${address}`);
-          }
-
-          const options: any = {
-            method: 'GET',
-            url: `${credentials.baseUrl}/extended/v1/address/${address}/nonces`,
-            headers: {
-              'Authorization': `Bearer ${credentials.apiKey}`,
-              'Content-Type': 'application/json',
-            },
-            json: true,
-          };
-
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'getAccountInfo': {
-          const address = this.getNodeParameter('address', i) as string;
-          
-          if (!validateStacksAddress(address)) {
-            throw new NodeOperationError(this.getNode(), `Invalid Stacks address: ${address}`);
-          }
-
-          const options: any = {
-            method: 'GET',
-            url: `${credentials.baseUrl}/v2/accounts/${address}`,
-            headers: {
-              'Authorization': `Bearer ${credentials.apiKey}`,
-              'Content-Type': 'application/json',
-            },
-            json: true,
-          };
-
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        default:
-          throw new NodeOperationError(this.getNode(), `Unknown operation: ${operation}`);
-      }
-
-      returnData.push({ json: result, pairedItem: { item: i } });
-
-    } catch (error: any) {
-      if (this.continueOnFail()) {
-        returnData.push({ 
-          json: { error: error.message }, 
-          pairedItem: { item: i } 
-        });
-      } else {
-        if (error.httpCode) {
-          throw new NodeApiError(this.getNode(), error);
-        } else {
-          throw new NodeOperationError(this.getNode(), error.message);
-        }
-      }
-    }
-  }
-
-  return returnData;
-}
-
-async function executeSmartContractsOperations(
-  this: IExecuteFunctions,
-  items: INodeExecutionData[],
-): Promise<INodeExecutionData[]> {
-  const returnData: INodeExecutionData[] = [];
-  const operation = this.getNodeParameter('operation', 0) as string;
-  const credentials = await this.getCredentials('stacksApi') as any;
-
-  for (let i = 0; i < items.length; i++) {
-    try {
-      let result: any;
-
-      switch (operation) {
-        case 'getContractInfo': {
+        case 'getFtMetadata': {
           const contractId = this.getNodeParameter('contractId', i) as string;
           
           const options: any = {
             method: 'GET',
-            url: `${credentials.baseUrl}/extended/v1/contract/${contractId}`,
-            headers: {
-              'X-API-Key': credentials.apiKey,
-              'Content-Type': 'application/json',
+            url: `${credentials.baseUrl}/extended/v1/tokens/ft/metadata`,
+            qs: {
+              contract_id: contractId,
             },
+            headers: {},
             json: true,
           };
-          
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
 
-        case 'callReadOnlyFunction': {
-          const contractAddress = this.getNodeParameter('contractAddress', i) as string;
-          const contractName = this.getNodeParameter('contractName', i) as string;
-          const functionName = this.getNodeParameter('functionName', i) as string;
-          const argumentsParam = this.getNodeParameter('arguments', i) as string;
-
-          let parsedArguments: any[] = [];
-          try {
-            parsedArguments = JSON.parse(argumentsParam);
-          } catch (error: any) {
-            throw new NodeOperationError(this.getNode(), `Invalid arguments JSON: ${error.message}`);
+          if (credentials.apiKey) {
+            options.headers['Authorization'] = `Bearer ${credentials.apiKey}`;
           }
 
-          const options: any = {
-            method: 'POST',
-            url: `${credentials.baseUrl}/v2/contracts/call-read/${contractAddress}/${contractName}/${functionName}`,
-            headers: {
-              'X-API-Key': credentials.apiKey,
-              'Content-Type': 'application/json',
-            },
-            body: {
-              sender: contractAddress,
-              arguments: parsedArguments,
-            },
-            json: true,
-          };
-          
           result = await this.helpers.httpRequest(options) as any;
           break;
         }
 
-        case 'getContractEvents': {
-          const contractAddress = this.getNodeParameter('contractAddress', i) as string;
-          const contractName = this.getNodeParameter('contractName', i) as string;
-          const limit = this.getNodeParameter('limit', i) as number;
-          const offset = this.getNodeParameter('offset', i) as number;
-
-          const queryParams = new URLSearchParams();
-          if (limit) queryParams.append('limit', limit.toString());
-          if (offset) queryParams.append('offset', offset.toString());
-
-          const options: any = {
-            method: 'GET',
-            url: `${credentials.baseUrl}/extended/v1/contract/${contractAddress}/${contractName}/events?${queryParams.toString()}`,
-            headers: {
-              'X-API-Key': credentials.apiKey,
-              'Content-Type': 'application/json',
-            },
-            json: true,
-          };
-          
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'getContractSource': {
-          const contractAddress = this.getNodeParameter('contractAddress', i) as string;
-          const contractName = this.getNodeParameter('contractName', i) as string;
-
-          const options: any = {
-            method: 'GET',
-            url: `${credentials.baseUrl}/v2/contracts/source/${contractAddress}/${contractName}`,
-            headers: {
-              'X-API-Key': credentials.apiKey,
-              'Content-Type': 'application/json',
-            },
-            json: true,
-          };
-          
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'getContractDetails': {
-          const contractAddress = this.getNodeParameter('contractAddress', i) as string;
-          const contractName = this.getNodeParameter('contractName', i) as string;
-
-          const options: any = {
-            method: 'GET',
-            url: `${credentials.baseUrl}/extended/v1/contract/${contractAddress}/${contractName}`,
-            headers: {
-              'X-API-Key': credentials.apiKey,
-              'Content-Type': 'application/json',
-            },
-            json: true,
-          };
-          
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        default:
-          throw new NodeOperationError(this.getNode(), `Unknown operation: ${operation}`);
-      }
-
-      returnData.push({ json: result, pairedItem: { item: i } });
-    } catch (error: any) {
-      if (this.continueOnFail()) {
-        returnData.push({ json: { error: error.message }, pairedItem: { item: i } });
-      } else {
-        throw new NodeApiError(this.getNode(), error);
-      }
-    }
-  }
-
-  return returnData;
-}
-
-function validateStacksAddress(address: string): boolean {
-  // Basic Stacks address validation (starts with SP or SM for mainnet, ST for testnet)
-  return /^(SP|SM|ST)[0-9A-HJKMNP-TV-Z]{38}$/.test(address);
-}
-
-async function executeTokensAndAssetsOperations(
-  this: IExecuteFunctions,
-  items: INodeExecutionData[],
-): Promise<INodeExecutionData[]> {
-  const returnData: INodeExecutionData[] = [];
-  const operation = this.getNodeParameter('operation', 0) as string;
-  const credentials = await this.getCredentials('stacksApi') as any;
-
-  for (let i = 0; i < items.length; i++) {
-    try {
-      let result: any;
-
-      switch (operation) {
-        case 'listFungibleTokens': {
-          const limit = this.getNodeParameter('limit', i, 20) as number;
+        case 'getAllFungibleTokens': {
+          const limit = this.getNodeParameter('limit', i, 96) as number;
           const offset = this.getNodeParameter('offset', i, 0) as number;
 
           const options: any = {
@@ -1501,121 +2223,65 @@ async function executeTokensAndAssetsOperations(
               limit,
               offset,
             },
-            headers: {
-              'Content-Type': 'application/json',
-              'X-API-Key': credentials.apiKey,
-            },
+            headers: {},
             json: true,
           };
 
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'listNonFungibleTokens': {
-          const limit = this.getNodeParameter('limit', i, 20) as number;
-          const offset = this.getNodeParameter('offset', i, 0) as number;
-
-          const options: any = {
-            method: 'GET',
-            url: `${credentials.baseUrl}/extended/v1/tokens/nft`,
-            qs: {
-              limit,
-              offset,
-            },
-            headers: {
-              'Content-Type': 'application/json',
-              'X-API-Key': credentials.apiKey,
-            },
-            json: true,
-          };
-
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'getNFTHoldings': {
-          const address = this.getNodeParameter('address', i) as string;
-          const limit = this.getNodeParameter('limit', i, 20) as number;
-          const offset = this.getNodeParameter('offset', i, 0) as number;
-
-          if (!validateStacksAddress(address)) {
-            throw new NodeOperationError(this.getNode(), `Invalid Stacks address: ${address}`);
+          if (credentials.apiKey) {
+            options.headers['Authorization'] = `Bearer ${credentials.apiKey}`;
           }
 
+          result = await this.helpers.httpRequest(options) as any;
+          break;
+        }
+
+        case 'getFtEvents': {
+          const address = this.getNodeParameter('address', i) as string;
+          const limit = this.getNodeParameter('limit', i, 96) as number;
+          const offset = this.getNodeParameter('offset', i, 0) as number;
+
           const options: any = {
             method: 'GET',
-            url: `${credentials.baseUrl}/extended/v1/tokens/nft/holdings`,
+            url: `${credentials.baseUrl}/extended/v1/address/${address}/ft_events`,
             qs: {
-              address,
               limit,
               offset,
             },
-            headers: {
-              'Content-Type': 'application/json',
-              'X-API-Key': credentials.apiKey,
-            },
+            headers: {},
             json: true,
           };
+
+          if (credentials.apiKey) {
+            options.headers['Authorization'] = `Bearer ${credentials.apiKey}`;
+          }
 
           result = await this.helpers.httpRequest(options) as any;
           break;
         }
 
-        case 'getFungibleTokenMetadata': {
+        case 'getFtSupply': {
           const contractId = this.getNodeParameter('contractId', i) as string;
 
-          if (!contractId || !contractId.includes('.')) {
-            throw new NodeOperationError(this.getNode(), `Invalid contract ID format: ${contractId}`);
+          const options: any = {
+            method: 'GET',
+            url: `${credentials.baseUrl}/extended/v1/tokens/ft/${contractId}/supply`,
+            headers: {},
+            json: true,
+          };
+
+          if (credentials.apiKey) {
+            options.headers['Authorization'] = `Bearer ${credentials.apiKey}`;
           }
-
-          const options: any = {
-            method: 'GET',
-            url: `${credentials.baseUrl}/extended/v1/tokens/ft/metadata`,
-            qs: {
-              contract_id: contractId,
-            },
-            headers: {
-              'Content-Type': 'application/json',
-              'X-API-Key': credentials.apiKey,
-            },
-            json: true,
-          };
-
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'getNFTMints': {
-          const limit = this.getNodeParameter('limit', i, 20) as number;
-          const offset = this.getNodeParameter('offset', i, 0) as number;
-
-          const options: any = {
-            method: 'GET',
-            url: `${credentials.baseUrl}/extended/v1/tokens/nft/mints`,
-            qs: {
-              limit,
-              offset,
-            },
-            headers: {
-              'Content-Type': 'application/json',
-              'X-API-Key': credentials.apiKey,
-            },
-            json: true,
-          };
 
           result = await this.helpers.httpRequest(options) as any;
           break;
         }
 
         default:
-          throw new NodeOperationError(this.getNode(), `Unknown operation: ${operation}`);
+          throw new NodeOperationError(this.getNode(), `Unknown operation: ${operation}`, { itemIndex: i });
       }
 
-      returnData.push({
-        json: result,
-        pairedItem: { item: i },
-      });
+      returnData.push({ json: result, pairedItem: { item: i } });
     } catch (error: any) {
       if (this.continueOnFail()) {
         returnData.push({
@@ -1624,234 +2290,10 @@ async function executeTokensAndAssetsOperations(
         });
       } else {
         if (error.httpCode) {
-          throw new NodeApiError(this.getNode(), error);
+          throw new NodeApiError(this.getNode(), error, { itemIndex: i });
+        } else {
+          throw new NodeOperationError(this.getNode(), error.message, { itemIndex: i });
         }
-        throw new NodeOperationError(this.getNode(), error.message);
-      }
-    }
-  }
-
-  return returnData;
-}
-
-async function executeNetworkInfoOperations(
-	this: IExecuteFunctions,
-	items: INodeExecutionData[],
-): Promise<INodeExecutionData[]> {
-	const returnData: INodeExecutionData[] = [];
-	const operation = this.getNodeParameter('operation', 0) as string;
-	const credentials = await this.getCredentials('stacksApi') as any;
-
-	for (let i = 0; i < items.length; i++) {
-		try {
-			let result: any;
-			
-			switch (operation) {
-				case 'getNetworkInfo': {
-					const options: any = {
-						method: 'GET',
-						url: `${credentials.baseUrl}/v2/info`,
-						headers: {
-							'Authorization': `Bearer ${credentials.apiKey}`,
-							'Content-Type': 'application/json',
-						},
-						json: true,
-					};
-					result = await this.helpers.httpRequest(options) as any;
-					break;
-				}
-
-				case 'getNetworkStatus': {
-					const options: any = {
-						method: 'GET',
-						url: `${credentials.baseUrl}/extended/v1/status`,
-						headers: {
-							'Authorization': `Bearer ${credentials.apiKey}`,
-							'Content-Type': 'application/json',
-						},
-						json: true,
-					};
-					result = await this.helpers.httpRequest(options) as any;
-					break;
-				}
-
-				case 'getTransferFees': {
-					const options: any = {
-						method: 'GET',
-						url: `${credentials.baseUrl}/v2/fees/transfer`,
-						headers: {
-							'Authorization': `Bearer ${credentials.apiKey}`,
-							'Content-Type': 'application/json',
-						},
-						json: true,
-					};
-					result = await this.helpers.httpRequest(options) as any;
-					break;
-				}
-
-				case 'getFeeRates': {
-					const options: any = {
-						method: 'GET',
-						url: `${credentials.baseUrl}/extended/v1/fee_rate`,
-						headers: {
-							'Authorization': `Bearer ${credentials.apiKey}`,
-							'Content-Type': 'application/json',
-						},
-						json: true,
-					};
-					result = await this.helpers.httpRequest(options) as any;
-					break;
-				}
-
-				case 'getNetworkStats': {
-					const options: any = {
-						method: 'GET',
-						url: `${credentials.baseUrl}/extended/v1/stats`,
-						headers: {
-							'Authorization': `Bearer ${credentials.apiKey}`,
-							'Content-Type': 'application/json',
-						},
-						json: true,
-					};
-					result = await this.helpers.httpRequest(options) as any;
-					break;
-				}
-
-				default:
-					throw new NodeOperationError(
-						this.getNode(),
-						`Unknown operation: ${operation}`,
-						{ itemIndex: i },
-					);
-			}
-
-			returnData.push({ json: result, pairedItem: { item: i } });
-		} catch (error: any) {
-			if (this.continueOnFail()) {
-				returnData.push({
-					json: { error: error.message },
-					pairedItem: { item: i },
-				});
-			} else {
-				throw new NodeApiError(
-					this.getNode(),
-					error,
-					{ itemIndex: i },
-				);
-			}
-		}
-	}
-
-	return returnData;
-}
-
-function validateHexHash(hash: string): boolean {
-  return /^0x[a-fA-F0-9]{64}$/.test(hash);
-}
-
-async function executeMicroblocksOperations(
-  this: IExecuteFunctions,
-  items: INodeExecutionData[],
-): Promise<INodeExecutionData[]> {
-  const returnData: INodeExecutionData[] = [];
-  const operation = this.getNodeParameter('operation', 0) as string;
-  const credentials = await this.getCredentials('stacksApi') as any;
-
-  for (let i = 0; i < items.length; i++) {
-    try {
-      let result: any;
-
-      switch (operation) {
-        case 'getLatestMicroblocks': {
-          const limit = this.getNodeParameter('limit', i) as number;
-          const offset = this.getNodeParameter('offset', i) as number;
-          
-          const queryParams: string[] = [];
-          if (limit !== 20) queryParams.push(`limit=${limit}`);
-          if (offset !== 0) queryParams.push(`offset=${offset}`);
-          
-          const queryString = queryParams.length > 0 ? `?${queryParams.join('&')}` : '';
-          
-          const options: any = {
-            method: 'GET',
-            url: `${credentials.baseUrl}/extended/v1/microblock${queryString}`,
-            headers: {
-              'Content-Type': 'application/json',
-              'X-API-Key': credentials.apiKey,
-            },
-            json: true,
-          };
-          
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'getMicroblockByHash': {
-          const hash = this.getNodeParameter('hash', i) as string;
-          
-          if (!hash) {
-            throw new NodeOperationError(this.getNode(), 'Microblock hash is required');
-          }
-
-          if (!validateHexHash(hash)) {
-            throw new NodeOperationError(this.getNode(), 'Invalid microblock hash format. Must be a 64-character hex string starting with 0x');
-          }
-          
-          const options: any = {
-            method: 'GET',
-            url: `${credentials.baseUrl}/extended/v1/microblock/${hash}`,
-            headers: {
-              'Content-Type': 'application/json',
-              'X-API-Key': credentials.apiKey,
-            },
-            json: true,
-          };
-          
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        case 'getUnanchoredTransactions': {
-          const limit = this.getNodeParameter('limit', i) as number;
-          const offset = this.getNodeParameter('offset', i) as number;
-          
-          const queryParams: string[] = [];
-          if (limit !== 20) queryParams.push(`limit=${limit}`);
-          if (offset !== 0) queryParams.push(`offset=${offset}`);
-          
-          const queryString = queryParams.length > 0 ? `?${queryParams.join('&')}` : '';
-          
-          const options: any = {
-            method: 'GET',
-            url: `${credentials.baseUrl}/extended/v1/microblock/unanchored/txs${queryString}`,
-            headers: {
-              'Content-Type': 'application/json',
-              'X-API-Key': credentials.apiKey,
-            },
-            json: true,
-          };
-          
-          result = await this.helpers.httpRequest(options) as any;
-          break;
-        }
-
-        default:
-          throw new NodeOperationError(this.getNode(), `Unknown operation: ${operation}`);
-      }
-
-      returnData.push({ json: result, pairedItem: { item: i } });
-
-    } catch (error: any) {
-      if (this.continueOnFail()) {
-        returnData.push({ 
-          json: { error: error.message }, 
-          pairedItem: { item: i } 
-        });
-      } else {
-        if (error.httpCode) {
-          throw new NodeApiError(this.getNode(), error);
-        }
-        throw new NodeOperationError(this.getNode(), error.message);
       }
     }
   }
