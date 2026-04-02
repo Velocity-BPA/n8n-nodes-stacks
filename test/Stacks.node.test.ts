@@ -67,6 +67,158 @@ describe('Stacks Node', () => {
   });
 
   // Resource-specific tests
+describe('Accounts Resource', () => {
+  let mockExecuteFunctions: any;
+
+  beforeEach(() => {
+    mockExecuteFunctions = {
+      getNodeParameter: jest.fn(),
+      getCredentials: jest.fn().mockResolvedValue({ 
+        apiKey: 'test-key', 
+        baseUrl: 'https://api.hiro.so' 
+      }),
+      getInputData: jest.fn().mockReturnValue([{ json: {} }]),
+      getNode: jest.fn().mockReturnValue({ name: 'Test Node' }),
+      continueOnFail: jest.fn().mockReturnValue(false),
+      helpers: { 
+        httpRequest: jest.fn(),
+        requestWithAuthentication: jest.fn() 
+      },
+    };
+  });
+
+  it('should get account details successfully', async () => {
+    const mockAccountData = { balance: '1000000', nonce: 1 };
+    mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
+      if (param === 'operation') return 'getAccount';
+      if (param === 'principal') return 'SP1ABC123';
+      return undefined;
+    });
+    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockAccountData);
+
+    const result = await executeAccountsOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].json).toEqual(mockAccountData);
+    expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
+      method: 'GET',
+      url: 'https://api.hiro.so/extended/v1/address/SP1ABC123',
+      headers: {
+        'Authorization': 'Bearer test-key',
+        'Content-Type': 'application/json',
+      },
+      json: true,
+    });
+  });
+
+  it('should get account balances successfully', async () => {
+    const mockBalanceData = { stx: { balance: '1000000' }, fungible_tokens: {} };
+    mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
+      if (param === 'operation') return 'getAccountBalances';
+      if (param === 'principal') return 'SP1ABC123';
+      return undefined;
+    });
+    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockBalanceData);
+
+    const result = await executeAccountsOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].json).toEqual(mockBalanceData);
+  });
+
+  it('should get account STX info successfully', async () => {
+    const mockStxData = { balance: '1000000', locked: '0' };
+    mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
+      if (param === 'operation') return 'getAccountStx';
+      if (param === 'principal') return 'SP1ABC123';
+      return undefined;
+    });
+    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockStxData);
+
+    const result = await executeAccountsOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].json).toEqual(mockStxData);
+  });
+
+  it('should get account transactions with pagination', async () => {
+    const mockTransactionData = { limit: 10, offset: 0, total: 100, results: [] };
+    mockExecuteFunctions.getNodeParameter.mockImplementation((param: string, index?: number, defaultValue?: any) => {
+      if (param === 'operation') return 'getAccountTransactions';
+      if (param === 'principal') return 'SP1ABC123';
+      if (param === 'limit') return 10;
+      if (param === 'offset') return 0;
+      return defaultValue;
+    });
+    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockTransactionData);
+
+    const result = await executeAccountsOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].json).toEqual(mockTransactionData);
+    expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith(
+      expect.objectContaining({
+        url: expect.stringContaining('limit=10&offset=0'),
+      })
+    );
+  });
+
+  it('should get account nonces successfully', async () => {
+    const mockNonceData = { last_mempool_tx_nonce: 5, last_executed_tx_nonce: 4 };
+    mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
+      if (param === 'operation') return 'getAccountNonces';
+      if (param === 'principal') return 'SP1ABC123';
+      return undefined;
+    });
+    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockNonceData);
+
+    const result = await executeAccountsOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].json).toEqual(mockNonceData);
+  });
+
+  it('should handle errors when continueOnFail is true', async () => {
+    mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
+      if (param === 'operation') return 'getAccount';
+      if (param === 'principal') return 'SP1ABC123';
+      return undefined;
+    });
+    mockExecuteFunctions.helpers.httpRequest.mockRejectedValue(new Error('API Error'));
+    mockExecuteFunctions.continueOnFail.mockReturnValue(true);
+
+    const result = await executeAccountsOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].json.error).toBe('API Error');
+  });
+
+  it('should throw error when continueOnFail is false', async () => {
+    mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
+      if (param === 'operation') return 'getAccount';
+      if (param === 'principal') return 'SP1ABC123';
+      return undefined;
+    });
+    mockExecuteFunctions.helpers.httpRequest.mockRejectedValue(new Error('API Error'));
+    mockExecuteFunctions.continueOnFail.mockReturnValue(false);
+
+    await expect(
+      executeAccountsOperations.call(mockExecuteFunctions, [{ json: {} }])
+    ).rejects.toThrow('API Error');
+  });
+
+  it('should throw error for unknown operation', async () => {
+    mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
+      if (param === 'operation') return 'unknownOperation';
+      return undefined;
+    });
+
+    await expect(
+      executeAccountsOperations.call(mockExecuteFunctions, [{ json: {} }])
+    ).rejects.toThrow('Unknown operation: unknownOperation');
+  });
+});
+
 describe('Transactions Resource', () => {
   let mockExecuteFunctions: any;
 
@@ -74,993 +226,208 @@ describe('Transactions Resource', () => {
     mockExecuteFunctions = {
       getNodeParameter: jest.fn(),
       getCredentials: jest.fn().mockResolvedValue({
-        apiKey: 'test-api-key',
-        baseUrl: 'https://api.mainnet.hiro.so',
+        apiKey: 'test-key',
+        baseUrl: 'https://api.hiro.so',
       }),
       getInputData: jest.fn().mockReturnValue([{ json: {} }]),
       getNode: jest.fn().mockReturnValue({ name: 'Test Node' }),
       continueOnFail: jest.fn().mockReturnValue(false),
       helpers: {
         httpRequest: jest.fn(),
-        requestWithAuthentication: jest.fn(),
       },
     };
   });
 
-  test('getAllTransactions - successful execution', async () => {
-    const mockResponse = {
-      results: [
-        {
-          tx_id: '0x123',
-          tx_type: 'token_transfer',
-          tx_status: 'success',
-        },
-      ],
-      total: 1,
-    };
+  describe('getTransactions', () => {
+    it('should get recent transactions successfully', async () => {
+      mockExecuteFunctions.getNodeParameter
+        .mockReturnValueOnce('getTransactions')
+        .mockReturnValueOnce(20)
+        .mockReturnValueOnce(0)
+        .mockReturnValueOnce('');
 
-    mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
-      switch (paramName) {
-        case 'operation': return 'getAllTransactions';
-        case 'limit': return 20;
-        case 'offset': return 0;
-        case 'type': return '';
-        default: return undefined;
-      }
-    });
-
-    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-    const items = [{ json: {} }];
-    const result = await executeTransactionsOperations.call(mockExecuteFunctions, items);
-
-    expect(result).toHaveLength(1);
-    expect(result[0].json).toEqual(mockResponse);
-    expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-      method: 'GET',
-      url: 'https://api.mainnet.hiro.so/extended/v1/tx?limit=20&offset=0',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-API-Key': 'test-api-key',
-      },
-      json: true,
-    });
-  });
-
-  test('getTransaction - successful execution', async () => {
-    const mockResponse = {
-      tx_id: '0x123456789',
-      tx_type: 'token_transfer',
-      tx_status: 'success',
-    };
-
-    mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
-      switch (paramName) {
-        case 'operation': return 'getTransaction';
-        case 'txId': return '0x123456789';
-        default: return undefined;
-      }
-    });
-
-    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-    const items = [{ json: {} }];
-    const result = await executeTransactionsOperations.call(mockExecuteFunctions, items);
-
-    expect(result).toHaveLength(1);
-    expect(result[0].json).toEqual(mockResponse);
-    expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-      method: 'GET',
-      url: 'https://api.mainnet.hiro.so/extended/v1/tx/0x123456789',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-API-Key': 'test-api-key',
-      },
-      json: true,
-    });
-  });
-
-  test('getMempoolTransactions - successful execution', async () => {
-    const mockResponse = {
-      results: [
-        {
-          tx_id: '0x456',
-          tx_type: 'contract_call',
-          tx_status: 'pending',
-        },
-      ],
-      total: 1,
-    };
-
-    mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
-      switch (paramName) {
-        case 'operation': return 'getMempoolTransactions';
-        case 'limit': return 10;
-        case 'offset': return 5;
-        default: return undefined;
-      }
-    });
-
-    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-    const items = [{ json: {} }];
-    const result = await executeTransactionsOperations.call(mockExecuteFunctions, items);
-
-    expect(result).toHaveLength(1);
-    expect(result[0].json).toEqual(mockResponse);
-    expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-      method: 'GET',
-      url: 'https://api.mainnet.hiro.so/extended/v1/tx/mempool?limit=10&offset=5',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-API-Key': 'test-api-key',
-      },
-      json: true,
-    });
-  });
-
-  test('broadcastTransaction - successful execution', async () => {
-    const mockResponse = {
-      txid: '0x789',
-    };
-
-    mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
-      switch (paramName) {
-        case 'operation': return 'broadcastTransaction';
-        case 'transactionData': return '0x00000000';
-        default: return undefined;
-      }
-    });
-
-    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-    const items = [{ json: {} }];
-    const result = await executeTransactionsOperations.call(mockExecuteFunctions, items);
-
-    expect(result).toHaveLength(1);
-    expect(result[0].json).toEqual(mockResponse);
-    expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-      method: 'POST',
-      url: 'https://api.mainnet.hiro.so/v2/transactions',
-      headers: {
-        'Content-Type': 'application/octet-stream',
-        'X-API-Key': 'test-api-key',
-      },
-      body: '0x00000000',
-    });
-  });
-
-  test('getAddressTransactions - successful execution', async () => {
-    const mockResponse = {
-      results: [
-        {
-          tx_id: '0x999',
-          tx_type: 'smart_contract',
-          tx_status: 'success',
-        },
-      ],
-      total: 1,
-    };
-
-    mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
-      switch (paramName) {
-        case 'operation': return 'getAddressTransactions';
-        case 'address': return 'SP1ABC123';
-        case 'limit': return 50;
-        case 'offset': return 0;
-        default: return undefined;
-      }
-    });
-
-    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-    const items = [{ json: {} }];
-    const result = await executeTransactionsOperations.call(mockExecuteFunctions, items);
-
-    expect(result).toHaveLength(1);
-    expect(result[0].json).toEqual(mockResponse);
-    expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-      method: 'GET',
-      url: 'https://api.mainnet.hiro.so/extended/v1/address/SP1ABC123/transactions?limit=50&offset=0',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-API-Key': 'test-api-key',
-      },
-      json: true,
-    });
-  });
-
-  test('error handling', async () => {
-    const mockError = new Error('API Error');
-
-    mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
-      switch (paramName) {
-        case 'operation': return 'getTransaction';
-        case 'txId': return 'invalid-tx-id';
-        default: return undefined;
-      }
-    });
-
-    mockExecuteFunctions.helpers.httpRequest.mockRejectedValue(mockError);
-    mockExecuteFunctions.continueOnFail.mockReturnValue(true);
-
-    const items = [{ json: {} }];
-    const result = await executeTransactionsOperations.call(mockExecuteFunctions, items);
-
-    expect(result).toHaveLength(1);
-    expect(result[0].json.error).toBe('API Error');
-    expect(result[0].json.operation).toBe('getTransaction');
-  });
-});
-
-describe('Accounts Resource', () => {
-  let mockExecuteFunctions: any;
-
-  beforeEach(() => {
-    mockExecuteFunctions = {
-      getNodeParameter: jest.fn(),
-      getCredentials: jest.fn().mockResolvedValue({
-        apiKey: 'test-api-key',
-        baseUrl: 'https://api.mainnet.hiro.so',
-      }),
-      getInputData: jest.fn().mockReturnValue([{ json: {} }]),
-      getNode: jest.fn().mockReturnValue({ name: 'Test Node' }),
-      continueOnFail: jest.fn().mockReturnValue(false),
-      helpers: {
-        httpRequest: jest.fn(),
-        requestWithAuthentication: jest.fn(),
-      },
-    };
-  });
-
-  describe('getAccountBalance', () => {
-    it('should get account balance successfully', async () => {
-      const mockResponse = {
-        stx: {
-          balance: '1000000',
-          total_sent: '0',
-          total_received: '1000000',
-        },
-        fungible_tokens: {},
-        non_fungible_tokens: {},
-      };
-
-      mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
-        if (paramName === 'operation') return 'getAccountBalance';
-        if (paramName === 'address') return 'SP1P72Z3704VMT3DMHPP2CB8TGQWGDBHD3RPR9GZS';
-        return undefined;
+      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue({
+        results: [{ tx_id: 'tx123', tx_type: 'coinbase' }],
       });
 
-      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
+      const result = await executeTransactionsOperations.call(
+        mockExecuteFunctions,
+        [{ json: {} }],
+      );
 
-      const result = await executeAccountsOperations.call(mockExecuteFunctions, [{ json: {} }]);
-
-      expect(result).toHaveLength(1);
-      expect(result[0].json).toEqual(mockResponse);
       expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
         method: 'GET',
+        url: 'https://api.hiro.so/extended/v1/tx?limit=20&offset=0',
         headers: {
+          Authorization: 'Bearer test-key',
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer test-api-key',
         },
         json: true,
-        baseUrl: 'https://api.mainnet.hiro.so',
-        url: 'https://api.mainnet.hiro.so/extended/v1/address/SP1P72Z3704VMT3DMHPP2CB8TGQWGDBHD3RPR9GZS/balances',
       });
+
+      expect(result).toHaveLength(1);
+      expect(result[0].json).toHaveProperty('results');
     });
 
-    it('should handle API errors for getAccountBalance', async () => {
-      mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
-        if (paramName === 'operation') return 'getAccountBalance';
-        if (paramName === 'address') return 'invalid-address';
-        return undefined;
-      });
-
-      const mockError = new Error('Invalid address format');
-      mockExecuteFunctions.helpers.httpRequest.mockRejectedValue(mockError);
+    it('should handle errors when getting transactions', async () => {
+      mockExecuteFunctions.getNodeParameter.mockReturnValue('getTransactions');
+      mockExecuteFunctions.helpers.httpRequest.mockRejectedValue(new Error('API Error'));
       mockExecuteFunctions.continueOnFail.mockReturnValue(true);
 
-      const result = await executeAccountsOperations.call(mockExecuteFunctions, [{ json: {} }]);
-
-      expect(result).toHaveLength(1);
-      expect(result[0].json).toEqual({ error: 'Invalid address format' });
-    });
-  });
-
-  describe('getAccountInfo', () => {
-    it('should get account info successfully', async () => {
-      const mockResponse = {
-        balance: '1000000',
-        nonce: 5,
-        balance_proof: '0x...',
-        nonce_proof: '0x...',
-      };
-
-      mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
-        if (paramName === 'operation') return 'getAccountInfo';
-        if (paramName === 'address') return 'SP1P72Z3704VMT3DMHPP2CB8TGQWGDBHD3RPR9GZS';
-        return undefined;
-      });
-
-      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-      const result = await executeAccountsOperations.call(mockExecuteFunctions, [{ json: {} }]);
-
-      expect(result).toHaveLength(1);
-      expect(result[0].json).toEqual(mockResponse);
-    });
-  });
-
-  describe('getStxInbound', () => {
-    it('should get STX inbound transactions successfully', async () => {
-      const mockResponse = {
-        limit: 50,
-        offset: 0,
-        total: 10,
-        results: [
-          {
-            sender: 'SP2J6ZY48GV1EZ5V2V5RB9MP66SW86PYKKNRV9EJ7',
-            amount: '500000',
-            memo: '0x',
-            block_height: 12345,
-          },
-        ],
-      };
-
-      mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string, index: number, defaultValue?: any) => {
-        if (paramName === 'operation') return 'getStxInbound';
-        if (paramName === 'address') return 'SP1P72Z3704VMT3DMHPP2CB8TGQWGDBHD3RPR9GZS';
-        if (paramName === 'limit') return defaultValue || 50;
-        if (paramName === 'offset') return defaultValue || 0;
-        return undefined;
-      });
-
-      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-      const result = await executeAccountsOperations.call(mockExecuteFunctions, [{ json: {} }]);
-
-      expect(result).toHaveLength(1);
-      expect(result[0].json).toEqual(mockResponse);
-    });
-  });
-
-  describe('getAccountAssets', () => {
-    it('should get account assets successfully', async () => {
-      const mockResponse = {
-        limit: 50,
-        offset: 0,
-        total: 5,
-        results: [
-          {
-            asset_identifier: 'SP1H1733V5MZ3SZ9XRW9FKYGEZT0JDGEB8Y634C7R.arkadiko-token::diko',
-            balance: '1000000',
-          },
-        ],
-      };
-
-      mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string, index: number, defaultValue?: any) => {
-        if (paramName === 'operation') return 'getAccountAssets';
-        if (paramName === 'address') return 'SP1P72Z3704VMT3DMHPP2CB8TGQWGDBHD3RPR9GZS';
-        if (paramName === 'limit') return defaultValue || 50;
-        if (paramName === 'offset') return defaultValue || 0;
-        return undefined;
-      });
-
-      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-      const result = await executeAccountsOperations.call(mockExecuteFunctions, [{ json: {} }]);
-
-      expect(result).toHaveLength(1);
-      expect(result[0].json).toEqual(mockResponse);
-    });
-  });
-});
-
-describe('SmartContracts Resource', () => {
-  let mockExecuteFunctions: any;
-
-  beforeEach(() => {
-    mockExecuteFunctions = {
-      getNodeParameter: jest.fn(),
-      getCredentials: jest.fn().mockResolvedValue({
-        apiKey: 'test-api-key',
-        baseUrl: 'https://api.mainnet.hiro.so',
-      }),
-      getInputData: jest.fn().mockReturnValue([{ json: {} }]),
-      getNode: jest.fn().mockReturnValue({ name: 'Test Node' }),
-      continueOnFail: jest.fn().mockReturnValue(false),
-      helpers: {
-        httpRequest: jest.fn(),
-        requestWithAuthentication: jest.fn(),
-      },
-    };
-  });
-
-  describe('getContract operation', () => {
-    it('should get contract details successfully', async () => {
-      const mockResponse = {
-        contract_id: 'SP000000000000000000002Q6VF78.pox',
-        source_code: '(define-public (test) (ok true))',
-        block_height: 1000,
-      };
-
-      mockExecuteFunctions.getNodeParameter.mockImplementation((param: string, index: number) => {
-        const params: any = {
-          operation: 'getContract',
-          contractAddress: 'SP000000000000000000002Q6VF78',
-          contractName: 'pox',
-          network: 'mainnet',
-        };
-        return params[param];
-      });
-
-      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-      const result = await executeSmartContractsOperations.call(
+      const result = await executeTransactionsOperations.call(
         mockExecuteFunctions,
         [{ json: {} }],
       );
 
-      expect(result).toEqual([
-        {
-          json: mockResponse,
-          pairedItem: { item: 0 },
-        },
-      ]);
-    });
-
-    it('should handle contract not found error', async () => {
-      mockExecuteFunctions.getNodeParameter.mockImplementation((param: string, index: number) => {
-        const params: any = {
-          operation: 'getContract',
-          contractAddress: 'SP000000000000000000002Q6VF78',
-          contractName: 'nonexistent',
-          network: 'mainnet',
-        };
-        return params[param];
-      });
-
-      const error = new Error('Contract not found');
-      mockExecuteFunctions.helpers.httpRequest.mockRejectedValue(error);
-
-      await expect(
-        executeSmartContractsOperations.call(mockExecuteFunctions, [{ json: {} }]),
-      ).rejects.toThrow('Contract not found');
+      expect(result[0].json).toHaveProperty('error', 'API Error');
     });
   });
 
-  describe('callReadOnlyFunction operation', () => {
-    it('should call read-only function successfully', async () => {
-      const mockResponse = {
-        okay: true,
-        result: '0x01',
-      };
+  describe('getTransaction', () => {
+    it('should get transaction by ID successfully', async () => {
+      mockExecuteFunctions.getNodeParameter
+        .mockReturnValueOnce('getTransaction')
+        .mockReturnValueOnce('tx123');
 
-      mockExecuteFunctions.getNodeParameter.mockImplementation((param: string, index: number) => {
-        const params: any = {
-          operation: 'callReadOnlyFunction',
-          contractAddress: 'SP000000000000000000002Q6VF78',
-          contractName: 'pox',
-          functionName: 'get-stacker-info',
-          arguments: '["SP1234567890"]',
-          sender: '',
-          network: 'mainnet',
-        };
-        return params[param];
+      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue({
+        tx_id: 'tx123',
+        tx_type: 'coinbase',
       });
 
-      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-      const result = await executeSmartContractsOperations.call(
+      const result = await executeTransactionsOperations.call(
         mockExecuteFunctions,
         [{ json: {} }],
       );
 
-      expect(result).toEqual([
-        {
-          json: mockResponse,
-          pairedItem: { item: 0 },
-        },
-      ]);
-    });
-
-    it('should handle invalid JSON arguments', async () => {
-      mockExecuteFunctions.getNodeParameter.mockImplementation((param: string, index: number) => {
-        const params: any = {
-          operation: 'callReadOnlyFunction',
-          contractAddress: 'SP000000000000000000002Q6VF78',
-          contractName: 'pox',
-          functionName: 'get-stacker-info',
-          arguments: 'invalid-json',
-          network: 'mainnet',
-        };
-        return params[param];
-      });
-
-      await expect(
-        executeSmartContractsOperations.call(mockExecuteFunctions, [{ json: {} }]),
-      ).rejects.toThrow('Invalid JSON in arguments parameter');
-    });
-  });
-
-  describe('getContractEvents operation', () => {
-    it('should get contract events successfully', async () => {
-      const mockResponse = {
-        results: [
-          {
-            event_index: 1,
-            event_type: 'smart_contract_log',
-            contract_log: {
-              contract_id: 'SP000000000000000000002Q6VF78.pox',
-              topic: 'print',
-              value: { hex: '0x01' },
-            },
-          },
-        ],
-        total: 1,
-      };
-
-      mockExecuteFunctions.getNodeParameter.mockImplementation((param: string, index: number) => {
-        const params: any = {
-          operation: 'getContractEvents',
-          contractAddress: 'SP000000000000000000002Q6VF78',
-          contractName: 'pox',
-          limit: 100,
-          offset: 0,
-          network: 'mainnet',
-        };
-        return params[param];
-      });
-
-      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-      const result = await executeSmartContractsOperations.call(
-        mockExecuteFunctions,
-        [{ json: {} }],
-      );
-
-      expect(result).toEqual([
-        {
-          json: mockResponse,
-          pairedItem: { item: 0 },
-        },
-      ]);
-    });
-  });
-
-  describe('getContractSource operation', () => {
-    it('should get contract source successfully', async () => {
-      const mockResponse = {
-        source: '(define-public (test) (ok true))',
-        publish_height: 1000,
-      };
-
-      mockExecuteFunctions.getNodeParameter.mockImplementation((param: string, index: number) => {
-        const params: any = {
-          operation: 'getContractSource',
-          contractAddress: 'SP000000000000000000002Q6VF78',
-          contractName: 'pox',
-          network: 'mainnet',
-        };
-        return params[param];
-      });
-
-      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-      const result = await executeSmartContractsOperations.call(
-        mockExecuteFunctions,
-        [{ json: {} }],
-      );
-
-      expect(result).toEqual([
-        {
-          json: mockResponse,
-          pairedItem: { item: 0 },
-        },
-      ]);
-    });
-  });
-
-  it('should handle unknown operation', async () => {
-    mockExecuteFunctions.getNodeParameter.mockImplementation((param: string, index: number) => {
-      if (param === 'operation') return 'unknownOperation';
-      return '';
-    });
-
-    await expect(
-      executeSmartContractsOperations.call(mockExecuteFunctions, [{ json: {} }]),
-    ).rejects.toThrow('Unknown operation: unknownOperation');
-  });
-});
-
-describe('NonFungibleTokens Resource', () => {
-  let mockExecuteFunctions: any;
-
-  beforeEach(() => {
-    mockExecuteFunctions = {
-      getNodeParameter: jest.fn(),
-      getCredentials: jest.fn().mockResolvedValue({
-        apiKey: 'test-api-key',
-        baseUrl: 'https://api.mainnet.hiro.so',
-      }),
-      getInputData: jest.fn().mockReturnValue([{ json: {} }]),
-      getNode: jest.fn().mockReturnValue({ name: 'Test Node' }),
-      continueOnFail: jest.fn().mockReturnValue(false),
-      helpers: {
-        httpRequest: jest.fn(),
-        requestWithAuthentication: jest.fn(),
-      },
-    };
-  });
-
-  describe('getAllNftHoldings', () => {
-    it('should get all NFT holdings successfully', async () => {
-      const mockResponse = {
-        results: [
-          {
-            asset_identifier: 'SP1H1733V5MZ3SZ9XRW9FKYGEZT0JDGEB8Y634C7R.miamicoin-nft::miamicoin-nft',
-            value: '1',
-            recipient: 'SP2H8PY27SEZ03MWRKS5XABZYQN17ETGQS3527SA5',
-            tx_id: '0x1234567890abcdef',
-          },
-        ],
-        total: 1,
-      };
-
-      mockExecuteFunctions.getNodeParameter.mockImplementation((name: string) => {
-        switch (name) {
-          case 'operation': return 'getAllNftHoldings';
-          case 'assetIdentifiers': return 'SP1H1733V5MZ3SZ9XRW9FKYGEZT0JDGEB8Y634C7R.miamicoin-nft::miamicoin-nft';
-          case 'limit': return 50;
-          case 'offset': return 0;
-          default: return undefined;
-        }
-      });
-
-      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-      const result = await executeNonFungibleTokensOperations.call(
-        mockExecuteFunctions,
-        [{ json: {} }],
-      );
-
-      expect(result).toHaveLength(1);
-      expect(result[0].json).toEqual(mockResponse);
       expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
         method: 'GET',
-        url: 'https://api.mainnet.hiro.so/extended/v1/tokens/nft/holdings?asset_identifiers=SP1H1733V5MZ3SZ9XRW9FKYGEZT0JDGEB8Y634C7R.miamicoin-nft%3A%3Amiamicoin-nft&limit=50&offset=0',
+        url: 'https://api.hiro.so/extended/v1/tx/tx123',
         headers: {
+          Authorization: 'Bearer test-key',
           'Content-Type': 'application/json',
-          'X-API-Key': 'test-api-key',
         },
         json: true,
       });
+
+      expect(result[0].json).toHaveProperty('tx_id', 'tx123');
     });
   });
 
-  describe('getNftEvents', () => {
-    it('should get NFT events for address successfully', async () => {
-      const mockResponse = {
-        nft_events: [
-          {
-            sender: 'SP2H8PY27SEZ03MWRKS5XABZYQN17ETGQS3527SA5',
-            recipient: 'SP1H1733V5MZ3SZ9XRW9FKYGEZT0JDGEB8Y634C7R',
-            asset_identifier: 'SP1H1733V5MZ3SZ9XRW9FKYGEZT0JDGEB8Y634C7R.miamicoin-nft::miamicoin-nft',
-            value: { hex: '0x01', repr: '1' },
-            tx_id: '0x1234567890abcdef',
-          },
-        ],
-        total: 1,
-      };
+  describe('broadcastTransaction', () => {
+    it('should broadcast transaction successfully', async () => {
+      mockExecuteFunctions.getNodeParameter
+        .mockReturnValueOnce('broadcastTransaction')
+        .mockReturnValueOnce('deadbeef');
 
-      mockExecuteFunctions.getNodeParameter.mockImplementation((name: string) => {
-        switch (name) {
-          case 'operation': return 'getNftEvents';
-          case 'address': return 'SP2H8PY27SEZ03MWRKS5XABZYQN17ETGQS3527SA5';
-          case 'limit': return 50;
-          case 'offset': return 0;
-          default: return undefined;
-        }
+      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue({
+        txid: 'tx123',
       });
 
-      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-      const result = await executeNonFungibleTokensOperations.call(
+      const result = await executeTransactionsOperations.call(
         mockExecuteFunctions,
         [{ json: {} }],
       );
 
-      expect(result).toHaveLength(1);
-      expect(result[0].json).toEqual(mockResponse);
       expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-        method: 'GET',
-        url: 'https://api.mainnet.hiro.so/extended/v1/address/SP2H8PY27SEZ03MWRKS5XABZYQN17ETGQS3527SA5/nft_events?limit=50&offset=0',
+        method: 'POST',
+        url: 'https://api.hiro.so/v2/transactions',
         headers: {
+          Authorization: 'Bearer test-key',
+          'Content-Type': 'application/octet-stream',
+        },
+        body: 'deadbeef',
+      });
+
+      expect(result[0].json).toHaveProperty('txid', 'tx123');
+    });
+  });
+
+  describe('getMempoolTransactions', () => {
+    it('should get mempool transactions successfully', async () => {
+      mockExecuteFunctions.getNodeParameter
+        .mockReturnValueOnce('getMempoolTransactions')
+        .mockReturnValueOnce(10)
+        .mockReturnValueOnce(0);
+
+      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue({
+        results: [{ tx_id: 'mempool-tx123' }],
+      });
+
+      const result = await executeTransactionsOperations.call(
+        mockExecuteFunctions,
+        [{ json: {} }],
+      );
+
+      expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
+        method: 'GET',
+        url: 'https://api.hiro.so/extended/v1/tx/mempool?limit=10&offset=0',
+        headers: {
+          Authorization: 'Bearer test-key',
           'Content-Type': 'application/json',
-          'X-API-Key': 'test-api-key',
         },
         json: true,
       });
+
+      expect(result[0].json).toHaveProperty('results');
     });
   });
 
-  describe('getNftMints', () => {
-    it('should get NFT mint events successfully', async () => {
-      const mockResponse = {
-        results: [
-          {
-            recipient: 'SP2H8PY27SEZ03MWRKS5XABZYQN17ETGQS3527SA5',
-            asset_identifier: 'SP1H1733V5MZ3SZ9XRW9FKYGEZT0JDGEB8Y634C7R.miamicoin-nft::miamicoin-nft',
-            value: { hex: '0x01', repr: '1' },
-            tx_id: '0x1234567890abcdef',
-            block_height: 12345,
-          },
-        ],
-        total: 1,
-      };
+  describe('getMempoolTransaction', () => {
+    it('should get mempool transaction by ID successfully', async () => {
+      mockExecuteFunctions.getNodeParameter
+        .mockReturnValueOnce('getMempoolTransaction')
+        .mockReturnValueOnce('mempool-tx123');
 
-      mockExecuteFunctions.getNodeParameter.mockImplementation((name: string) => {
-        switch (name) {
-          case 'operation': return 'getNftMints';
-          case 'assetIdentifier': return 'SP1H1733V5MZ3SZ9XRW9FKYGEZT0JDGEB8Y634C7R.miamicoin-nft::miamicoin-nft';
-          case 'limit': return 50;
-          case 'offset': return 0;
-          default: return undefined;
-        }
+      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue({
+        tx_id: 'mempool-tx123',
+        tx_status: 'pending',
       });
 
-      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-      const result = await executeNonFungibleTokensOperations.call(
+      const result = await executeTransactionsOperations.call(
         mockExecuteFunctions,
         [{ json: {} }],
       );
 
-      expect(result).toHaveLength(1);
-      expect(result[0].json).toEqual(mockResponse);
+      expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
+        method: 'GET',
+        url: 'https://api.hiro.so/extended/v1/tx/mempool/mempool-tx123',
+        headers: {
+          Authorization: 'Bearer test-key',
+          'Content-Type': 'application/json',
+        },
+        json: true,
+      });
+
+      expect(result[0].json).toHaveProperty('tx_id', 'mempool-tx123');
     });
   });
 
-  describe('getNftHistory', () => {
-    it('should get NFT transaction history successfully', async () => {
-      const mockResponse = {
-        results: [
-          {
-            sender: 'SP1H1733V5MZ3SZ9XRW9FKYGEZT0JDGEB8Y634C7R',
-            recipient: 'SP2H8PY27SEZ03MWRKS5XABZYQN17ETGQS3527SA5',
-            asset_identifier: 'SP1H1733V5MZ3SZ9XRW9FKYGEZT0JDGEB8Y634C7R.miamicoin-nft::miamicoin-nft',
-            value: { hex: '0x01', repr: '1' },
-            tx_id: '0x1234567890abcdef',
-            block_height: 12345,
-            event_type: 'non_fungible_token_asset',
-          },
-        ],
-        total: 1,
-      };
+  describe('getAddressMempoolTransactions', () => {
+    it('should get address mempool transactions successfully', async () => {
+      mockExecuteFunctions.getNodeParameter
+        .mockReturnValueOnce('getAddressMempoolTransactions')
+        .mockReturnValueOnce('SP2J6ZY48GV1EZ5V2V5RB9MP66SW86PYKKNRV9EJ7');
 
-      mockExecuteFunctions.getNodeParameter.mockImplementation((name: string) => {
-        switch (name) {
-          case 'operation': return 'getNftHistory';
-          case 'assetIdentifier': return 'SP1H1733V5MZ3SZ9XRW9FKYGEZT0JDGEB8Y634C7R.miamicoin-nft::miamicoin-nft';
-          case 'value': return '1';
-          case 'limit': return 50;
-          case 'offset': return 0;
-          default: return undefined;
-        }
+      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue({
+        results: [{ tx_id: 'addr-mempool-tx123' }],
       });
 
-      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-      const result = await executeNonFungibleTokensOperations.call(
+      const result = await executeTransactionsOperations.call(
         mockExecuteFunctions,
         [{ json: {} }],
       );
 
-      expect(result).toHaveLength(1);
-      expect(result[0].json).toEqual(mockResponse);
-    });
-
-    it('should handle errors gracefully', async () => {
-      const error = new Error('API Error');
-      
-      mockExecuteFunctions.getNodeParameter.mockImplementation((name: string) => {
-        switch (name) {
-          case 'operation': return 'getNftHistory';
-          default: return undefined;
-        }
-      });
-
-      mockExecuteFunctions.helpers.httpRequest.mockRejectedValue(error);
-      mockExecuteFunctions.continueOnFail.mockReturnValue(true);
-
-      const result = await executeNonFungibleTokensOperations.call(
-        mockExecuteFunctions,
-        [{ json: {} }],
-      );
-
-      expect(result).toHaveLength(1);
-      expect(result[0].json.error).toBe('API Error');
-    });
-  });
-});
-
-describe('Stacking Resource', () => {
-  let mockExecuteFunctions: any;
-
-  beforeEach(() => {
-    mockExecuteFunctions = {
-      getNodeParameter: jest.fn(),
-      getCredentials: jest.fn().mockResolvedValue({
-        apiKey: 'test-api-key',
-        baseUrl: 'https://api.mainnet.hiro.so',
-      }),
-      getInputData: jest.fn().mockReturnValue([{ json: {} }]),
-      getNode: jest.fn().mockReturnValue({ name: 'Test Node' }),
-      continueOnFail: jest.fn().mockReturnValue(false),
-      helpers: {
-        httpRequest: jest.fn(),
-        requestWithAuthentication: jest.fn(),
-      },
-    };
-  });
-
-  describe('getStackingRewards', () => {
-    it('should get stacking rewards for an address', async () => {
-      const mockResponse = {
-        limit: 20,
-        offset: 0,
-        results: [
-          {
-            canonical: true,
-            burn_block_hash: '0x123',
-            burn_block_height: 12345,
-            address: 'SP1ABC123DEF456',
-            slot_index: 0,
-          }
-        ]
-      };
-
-      mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-        switch (param) {
-          case 'operation': return 'getStackingRewards';
-          case 'address': return 'SP1ABC123DEF456';
-          case 'limit': return 20;
-          case 'offset': return 0;
-          default: return undefined;
-        }
-      });
-
-      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-      const result = await executeStackingOperations.call(mockExecuteFunctions, [{ json: {} }]);
-
-      expect(result).toEqual([{ json: mockResponse, pairedItem: { item: 0 } }]);
       expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
         method: 'GET',
-        url: 'https://api.mainnet.hiro.so/extended/v1/burnchain/reward_slot_holders/SP1ABC123DEF456',
-        qs: { limit: 20, offset: 0 },
-        headers: { 'Accept': 'application/json', 'Authorization': 'Bearer test-api-key' },
+        url: 'https://api.hiro.so/extended/v1/address/SP2J6ZY48GV1EZ5V2V5RB9MP66SW86PYKKNRV9EJ7/mempool',
+        headers: {
+          Authorization: 'Bearer test-key',
+          'Content-Type': 'application/json',
+        },
         json: true,
       });
-    });
 
-    it('should handle errors for getStackingRewards', async () => {
-      mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-        switch (param) {
-          case 'operation': return 'getStackingRewards';
-          case 'address': return 'SP1ABC123DEF456';
-          default: return undefined;
-        }
-      });
-
-      const error = new Error('API Error');
-      mockExecuteFunctions.helpers.httpRequest.mockRejectedValue(error);
-
-      await expect(executeStackingOperations.call(mockExecuteFunctions, [{ json: {} }]))
-        .rejects.toThrow('API Error');
-    });
-  });
-
-  describe('getAllStackingRewards', () => {
-    it('should get all stacking rewards', async () => {
-      const mockResponse = {
-        limit: 20,
-        offset: 0,
-        results: [
-          {
-            canonical: true,
-            burn_block_hash: '0x123',
-            burn_block_height: 12345,
-            reward_recipient: 'SP1ABC123DEF456',
-            reward_amount: '1000000',
-          }
-        ]
-      };
-
-      mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-        switch (param) {
-          case 'operation': return 'getAllStackingRewards';
-          case 'limit': return 20;
-          case 'offset': return 0;
-          default: return undefined;
-        }
-      });
-
-      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-      const result = await executeStackingOperations.call(mockExecuteFunctions, [{ json: {} }]);
-
-      expect(result).toEqual([{ json: mockResponse, pairedItem: { item: 0 } }]);
-      expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-        method: 'GET',
-        url: 'https://api.mainnet.hiro.so/extended/v1/burnchain/rewards',
-        qs: { limit: 20, offset: 0 },
-        headers: { 'Accept': 'application/json', 'Authorization': 'Bearer test-api-key' },
-        json: true,
-      });
-    });
-  });
-
-  describe('getPoxInfo', () => {
-    it('should get PoX information', async () => {
-      const mockResponse = {
-        contract_id: 'SP000000000000000000002Q6VF78.pox',
-        pox_activation_threshold_ustx: '4000000000000000',
-        first_burnchain_block_height: 666050,
-        current_cycle: {
-          id: 10,
-          min_threshold_ustx: '1000000000000',
-          stacked_ustx: '5000000000000',
-          is_pox_active: true,
-        }
-      };
-
-      mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-        switch (param) {
-          case 'operation': return 'getPoxInfo';
-          default: return undefined;
-        }
-      });
-
-      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-      const result = await executeStackingOperations.call(mockExecuteFunctions, [{ json: {} }]);
-
-      expect(result).toEqual([{ json: mockResponse, pairedItem: { item: 0 } }]);
-      expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-        method: 'GET',
-        url: 'https://api.mainnet.hiro.so/v2/pox',
-        headers: { 'Accept': 'application/json', 'Authorization': 'Bearer test-api-key' },
-        json: true,
-      });
-    });
-  });
-
-  describe('getTotalStackingRewards', () => {
-    it('should get total stacking rewards', async () => {
-      const mockResponse = {
-        reward_recipient_count: 150,
-        total_reward_amount_ustx: '50000000000000',
-      };
-
-      mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-        switch (param) {
-          case 'operation': return 'getTotalStackingRewards';
-          default: return undefined;
-        }
-      });
-
-      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-      const result = await executeStackingOperations.call(mockExecuteFunctions, [{ json: {} }]);
-
-      expect(result).toEqual([{ json: mockResponse, pairedItem: { item: 0 } }]);
-      expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-        method: 'GET',
-        url: 'https://api.mainnet.hiro.so/extended/v1/burnchain/rewards/total',
-        headers: { 'Accept': 'application/json', 'Authorization': 'Bearer test-api-key' },
-        json: true,
-      });
+      expect(result[0].json).toHaveProperty('results');
     });
   });
 });
@@ -1071,199 +438,586 @@ describe('Blocks Resource', () => {
   beforeEach(() => {
     mockExecuteFunctions = {
       getNodeParameter: jest.fn(),
-      getCredentials: jest.fn().mockResolvedValue({
-        apiKey: 'test-api-key',
-        baseUrl: 'https://api.mainnet.hiro.so',
+      getCredentials: jest.fn().mockResolvedValue({ 
+        apiKey: 'test-key', 
+        baseUrl: 'https://api.hiro.so' 
       }),
       getInputData: jest.fn().mockReturnValue([{ json: {} }]),
       getNode: jest.fn().mockReturnValue({ name: 'Test Node' }),
       continueOnFail: jest.fn().mockReturnValue(false),
-      helpers: {
+      helpers: { 
         httpRequest: jest.fn(),
-        requestWithAuthentication: jest.fn(),
+        requestWithAuthentication: jest.fn() 
       },
     };
   });
 
   describe('getBlocks operation', () => {
     it('should get recent blocks successfully', async () => {
-      const mockBlocks = {
-        limit: 20,
-        offset: 0,
-        total: 100,
-        results: [
-          {
-            canonical: true,
-            height: 123456,
-            hash: '0x123abc',
-            block_time: 1234567890,
-            block_time_iso: '2009-02-13T23:31:30.000Z'
-          }
-        ]
-      };
-
-      mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
-        switch (paramName) {
-          case 'operation': return 'getBlocks';
-          case 'limit': return 20;
-          case 'offset': return 0;
-          default: return undefined;
-        }
-      });
-
+      const mockBlocks = { results: [{ height: 123456, hash: 'block-hash' }] };
+      mockExecuteFunctions.getNodeParameter
+        .mockReturnValueOnce('getBlocks')
+        .mockReturnValueOnce(20)
+        .mockReturnValueOnce(0);
       mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockBlocks);
 
       const result = await executeBlocksOperations.call(mockExecuteFunctions, [{ json: {} }]);
 
-      expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-        method: 'GET',
-        url: 'https://api.mainnet.hiro.so/extended/v1/block',
-        qs: {
-          limit: 20,
-          offset: 0,
-        },
-        json: true,
-        headers: {
-          'X-API-Key': 'test-api-key',
-        },
-      });
-
       expect(result).toEqual([{ json: mockBlocks, pairedItem: { item: 0 } }]);
+      expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
+        method: 'GET',
+        url: 'https://api.hiro.so/extended/v1/block',
+        headers: { 'X-API-Key': 'test-key' },
+        qs: { limit: 20, offset: 0 },
+        json: true,
+      });
     });
 
-    it('should handle errors when getting blocks', async () => {
-      mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
-        switch (paramName) {
-          case 'operation': return 'getBlocks';
-          case 'limit': return 20;
-          case 'offset': return 0;
-          default: return undefined;
-        }
-      });
-
+    it('should handle getBlocks error', async () => {
+      mockExecuteFunctions.getNodeParameter.mockReturnValueOnce('getBlocks');
       mockExecuteFunctions.helpers.httpRequest.mockRejectedValue(new Error('API Error'));
+      mockExecuteFunctions.continueOnFail.mockReturnValue(true);
 
-      await expect(executeBlocksOperations.call(mockExecuteFunctions, [{ json: {} }])).rejects.toThrow();
+      const result = await executeBlocksOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+      expect(result).toEqual([{ json: { error: 'API Error' }, pairedItem: { item: 0 } }]);
     });
   });
 
-  describe('getBlockByHash operation', () => {
-    it('should get block by hash successfully', async () => {
-      const mockBlock = {
-        canonical: true,
-        height: 123456,
-        hash: '0x123abc',
-        block_time: 1234567890,
-        block_time_iso: '2009-02-13T23:31:30.000Z',
-        txs: []
-      };
-
-      mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
-        switch (paramName) {
-          case 'operation': return 'getBlockByHash';
-          case 'hash': return '0x123abc';
-          default: return undefined;
-        }
-      });
-
+  describe('getBlock operation', () => {
+    it('should get block by hash or height successfully', async () => {
+      const mockBlock = { height: 123456, hash: 'block-hash' };
+      mockExecuteFunctions.getNodeParameter
+        .mockReturnValueOnce('getBlock')
+        .mockReturnValueOnce('123456');
       mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockBlock);
 
       const result = await executeBlocksOperations.call(mockExecuteFunctions, [{ json: {} }]);
 
+      expect(result).toEqual([{ json: mockBlock, pairedItem: { item: 0 } }]);
       expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
         method: 'GET',
-        url: 'https://api.mainnet.hiro.so/extended/v1/block/0x123abc',
+        url: 'https://api.hiro.so/extended/v1/block/123456',
+        headers: { 'X-API-Key': 'test-key' },
         json: true,
-        headers: {
-          'X-API-Key': 'test-api-key',
-        },
       });
-
-      expect(result).toEqual([{ json: mockBlock, pairedItem: { item: 0 } }]);
-    });
-  });
-
-  describe('getBlockByHeight operation', () => {
-    it('should get block by height successfully', async () => {
-      const mockBlock = {
-        canonical: true,
-        height: 123456,
-        hash: '0x123abc',
-        block_time: 1234567890,
-        block_time_iso: '2009-02-13T23:31:30.000Z',
-        txs: []
-      };
-
-      mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
-        switch (paramName) {
-          case 'operation': return 'getBlockByHeight';
-          case 'height': return 123456;
-          default: return undefined;
-        }
-      });
-
-      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockBlock);
-
-      const result = await executeBlocksOperations.call(mockExecuteFunctions, [{ json: {} }]);
-
-      expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-        method: 'GET',
-        url: 'https://api.mainnet.hiro.so/extended/v1/block/by_height/123456',
-        json: true,
-        headers: {
-          'X-API-Key': 'test-api-key',
-        },
-      });
-
-      expect(result).toEqual([{ json: mockBlock, pairedItem: { item: 0 } }]);
     });
   });
 
   describe('getBlockTransactions operation', () => {
     it('should get block transactions successfully', async () => {
-      const mockTransactions = {
-        limit: 20,
-        offset: 0,
-        total: 5,
-        results: [
-          {
-            tx_id: '0xabc123',
-            tx_type: 'contract_call',
-            fee_rate: '1000',
-            nonce: 1
-          }
-        ]
-      };
-
-      mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
-        switch (paramName) {
-          case 'operation': return 'getBlockTransactions';
-          case 'hash': return '0x123abc';
-          case 'limit': return 20;
-          case 'offset': return 0;
-          default: return undefined;
-        }
-      });
-
+      const mockTransactions = { results: [{ tx_id: 'tx-123' }] };
+      mockExecuteFunctions.getNodeParameter
+        .mockReturnValueOnce('getBlockTransactions')
+        .mockReturnValueOnce('123456');
       mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockTransactions);
 
       const result = await executeBlocksOperations.call(mockExecuteFunctions, [{ json: {} }]);
 
-      expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-        method: 'GET',
-        url: 'https://api.mainnet.hiro.so/extended/v1/block/0x123abc/transactions',
-        qs: {
-          limit: 20,
-          offset: 0,
-        },
-        json: true,
-        headers: {
-          'X-API-Key': 'test-api-key',
-        },
-      });
-
       expect(result).toEqual([{ json: mockTransactions, pairedItem: { item: 0 } }]);
     });
+  });
+
+  describe('getNetworkInfo operation', () => {
+    it('should get network info successfully', async () => {
+      const mockNetworkInfo = { network_id: 1, chain_id: 'mainnet' };
+      mockExecuteFunctions.getNodeParameter.mockReturnValueOnce('getNetworkInfo');
+      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockNetworkInfo);
+
+      const result = await executeBlocksOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+      expect(result).toEqual([{ json: mockNetworkInfo, pairedItem: { item: 0 } }]);
+      expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
+        method: 'GET',
+        url: 'https://api.hiro.so/v2/info',
+        headers: { 'X-API-Key': 'test-key' },
+        json: true,
+      });
+    });
+  });
+
+  describe('getPoxInfo operation', () => {
+    it('should get PoX info successfully', async () => {
+      const mockPoxInfo = { cycle_id: 1, reward_cycle: 100 };
+      mockExecuteFunctions.getNodeParameter.mockReturnValueOnce('getPoxInfo');
+      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockPoxInfo);
+
+      const result = await executeBlocksOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+      expect(result).toEqual([{ json: mockPoxInfo, pairedItem: { item: 0 } }]);
+      expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
+        method: 'GET',
+        url: 'https://api.hiro.so/v2/pox',
+        headers: { 'X-API-Key': 'test-key' },
+        json: true,
+      });
+    });
+  });
+});
+
+describe('Smart Contracts Resource', () => {
+	let mockExecuteFunctions: any;
+
+	beforeEach(() => {
+		mockExecuteFunctions = {
+			getNodeParameter: jest.fn(),
+			getCredentials: jest.fn().mockResolvedValue({
+				apiKey: 'test-key',
+				baseUrl: 'https://api.hiro.so'
+			}),
+			getInputData: jest.fn().mockReturnValue([{ json: {} }]),
+			getNode: jest.fn().mockReturnValue({ name: 'Test Node' }),
+			continueOnFail: jest.fn().mockReturnValue(false),
+			helpers: {
+				httpRequest: jest.fn(),
+				requestWithAuthentication: jest.fn()
+			},
+		};
+	});
+
+	describe('getContract operation', () => {
+		it('should get contract information successfully', async () => {
+			const mockContractData = { contract_id: 'test-contract', source_code: 'test-code' };
+			mockExecuteFunctions.getNodeParameter
+				.mockReturnValueOnce('getContract')
+				.mockReturnValueOnce('test-contract');
+			mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockContractData);
+
+			const result = await executeSmartContractsOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+			expect(result).toEqual([{ json: mockContractData, pairedItem: { item: 0 } }]);
+			expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
+				method: 'GET',
+				url: 'https://api.hiro.so/extended/v1/contract/test-contract',
+				headers: { 'Authorization': 'Bearer test-key' },
+				json: true,
+			});
+		});
+
+		it('should handle get contract error', async () => {
+			mockExecuteFunctions.getNodeParameter
+				.mockReturnValueOnce('getContract')
+				.mockReturnValueOnce('test-contract');
+			mockExecuteFunctions.helpers.httpRequest.mockRejectedValue(new Error('Contract not found'));
+			mockExecuteFunctions.continueOnFail.mockReturnValue(true);
+
+			const result = await executeSmartContractsOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+			expect(result).toEqual([{ json: { error: 'Contract not found' }, pairedItem: { item: 0 } }]);
+		});
+	});
+
+	describe('getContractInterface operation', () => {
+		it('should get contract interface successfully', async () => {
+			const mockInterfaceData = { functions: [], maps: [] };
+			mockExecuteFunctions.getNodeParameter
+				.mockReturnValueOnce('getContractInterface')
+				.mockReturnValueOnce('test-contract');
+			mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockInterfaceData);
+
+			const result = await executeSmartContractsOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+			expect(result).toEqual([{ json: mockInterfaceData, pairedItem: { item: 0 } }]);
+		});
+	});
+
+	describe('callReadOnlyFunction operation', () => {
+		it('should call read-only function successfully', async () => {
+			const mockFunctionResult = { result: 'success', output: 'u100' };
+			mockExecuteFunctions.getNodeParameter
+				.mockReturnValueOnce('callReadOnlyFunction')
+				.mockReturnValueOnce('test-contract')
+				.mockReturnValueOnce('get-balance')
+				.mockReturnValueOnce('["SP123"]');
+			mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockFunctionResult);
+
+			const result = await executeSmartContractsOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+			expect(result).toEqual([{ json: mockFunctionResult, pairedItem: { item: 0 } }]);
+		});
+	});
+
+	describe('getContractEvents operation', () => {
+		it('should get contract events successfully', async () => {
+			const mockEventsData = { results: [], total: 0 };
+			mockExecuteFunctions.getNodeParameter
+				.mockReturnValueOnce('getContractEvents')
+				.mockReturnValueOnce('test-contract')
+				.mockReturnValueOnce(20)
+				.mockReturnValueOnce(0);
+			mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockEventsData);
+
+			const result = await executeSmartContractsOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+			expect(result).toEqual([{ json: mockEventsData, pairedItem: { item: 0 } }]);
+		});
+	});
+
+	describe('getContractCall operation', () => {
+		it('should get contract call details successfully', async () => {
+			const mockCallData = { tx_id: 'test-tx-id', function_name: 'transfer' };
+			mockExecuteFunctions.getNodeParameter
+				.mockReturnValueOnce('getContractCall')
+				.mockReturnValueOnce('test-tx-id');
+			mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockCallData);
+
+			const result = await executeSmartContractsOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+			expect(result).toEqual([{ json: mockCallData, pairedItem: { item: 0 } }]);
+		});
+	});
+});
+
+describe('NonFungibleTokens Resource', () => {
+	let mockExecuteFunctions: any;
+
+	beforeEach(() => {
+		mockExecuteFunctions = {
+			getNodeParameter: jest.fn(),
+			getCredentials: jest.fn().mockResolvedValue({
+				apiKey: 'test-api-key',
+				baseUrl: 'https://api.hiro.so',
+			}),
+			getInputData: jest.fn().mockReturnValue([{ json: {} }]),
+			getNode: jest.fn().mockReturnValue({ name: 'Test Node' }),
+			continueOnFail: jest.fn().mockReturnValue(false),
+			helpers: {
+				httpRequest: jest.fn(),
+				requestWithAuthentication: jest.fn(),
+			},
+		};
+	});
+
+	describe('getNftHoldings', () => {
+		it('should get NFT holdings successfully', async () => {
+			const mockResponse = { results: [], total: 0 };
+			mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
+			mockExecuteFunctions.getNodeParameter
+				.mockReturnValueOnce('getNftHoldings')
+				.mockReturnValueOnce('SP1ABC123')
+				.mockReturnValueOnce('')
+				.mockReturnValueOnce(50)
+				.mockReturnValueOnce(0);
+
+			const result = await executeNonFungibleTokensOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+			expect(result).toHaveLength(1);
+			expect(result[0].json).toEqual(mockResponse);
+			expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
+				method: 'GET',
+				url: 'https://api.hiro.so/extended/v1/tokens/nft/holdings?principal=SP1ABC123&limit=50&offset=0',
+				headers: {
+					'X-API-Key': 'test-api-key',
+					'Content-Type': 'application/json',
+				},
+				json: true,
+			});
+		});
+
+		it('should handle errors gracefully', async () => {
+			mockExecuteFunctions.helpers.httpRequest.mockRejectedValue(new Error('API Error'));
+			mockExecuteFunctions.continueOnFail.mockReturnValue(true);
+			mockExecuteFunctions.getNodeParameter.mockReturnValue('getNftHoldings');
+
+			const result = await executeNonFungibleTokensOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+			expect(result[0].json.error).toBe('API Error');
+		});
+	});
+
+	describe('getNftHistory', () => {
+		it('should get NFT history successfully', async () => {
+			const mockResponse = { results: [], total: 0 };
+			mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
+			mockExecuteFunctions.getNodeParameter
+				.mockReturnValueOnce('getNftHistory')
+				.mockReturnValueOnce('SP1ABC123.test-nft')
+				.mockReturnValueOnce('')
+				.mockReturnValueOnce(50)
+				.mockReturnValueOnce(0);
+
+			const result = await executeNonFungibleTokensOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+			expect(result).toHaveLength(1);
+			expect(result[0].json).toEqual(mockResponse);
+		});
+	});
+
+	describe('getNftMints', () => {
+		it('should get NFT mints successfully', async () => {
+			const mockResponse = { results: [], total: 0 };
+			mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
+			mockExecuteFunctions.getNodeParameter
+				.mockReturnValueOnce('getNftMints')
+				.mockReturnValueOnce('SP1ABC123.test-nft')
+				.mockReturnValueOnce(50)
+				.mockReturnValueOnce(0);
+
+			const result = await executeNonFungibleTokensOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+			expect(result).toHaveLength(1);
+			expect(result[0].json).toEqual(mockResponse);
+		});
+	});
+
+	describe('getAddressNftEvents', () => {
+		it('should get address NFT events successfully', async () => {
+			const mockResponse = { results: [], total: 0 };
+			mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
+			mockExecuteFunctions.getNodeParameter
+				.mockReturnValueOnce('getAddressNftEvents')
+				.mockReturnValueOnce('SP1ABC123')
+				.mockReturnValueOnce(50)
+				.mockReturnValueOnce(0);
+
+			const result = await executeNonFungibleTokensOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+			expect(result).toHaveLength(1);
+			expect(result[0].json).toEqual(mockResponse);
+		});
+	});
+});
+
+describe('FungibleTokens Resource', () => {
+  let mockExecuteFunctions: any;
+
+  beforeEach(() => {
+    mockExecuteFunctions = {
+      getNodeParameter: jest.fn(),
+      getCredentials: jest.fn().mockResolvedValue({ 
+        apiKey: 'test-key', 
+        baseUrl: 'https://api.hiro.so' 
+      }),
+      getInputData: jest.fn().mockReturnValue([{ json: {} }]),
+      getNode: jest.fn().mockReturnValue({ name: 'Test Node' }),
+      continueOnFail: jest.fn().mockReturnValue(false),
+      helpers: { 
+        httpRequest: jest.fn(),
+        requestWithAuthentication: jest.fn() 
+      },
+    };
+  });
+
+  describe('getFungibleTokens', () => {
+    it('should get fungible tokens successfully', async () => {
+      const mockResponse = { results: [{ contract_id: 'SP123.token' }] };
+      mockExecuteFunctions.getNodeParameter
+        .mockReturnValueOnce('getFungibleTokens')
+        .mockReturnValueOnce(20)
+        .mockReturnValueOnce(0);
+      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
+
+      const result = await executeFungibleTokensOperations.call(
+        mockExecuteFunctions, 
+        [{ json: {} }]
+      );
+
+      expect(result).toEqual([{ 
+        json: mockResponse, 
+        pairedItem: { item: 0 } 
+      }]);
+    });
+
+    it('should handle errors gracefully', async () => {
+      mockExecuteFunctions.getNodeParameter.mockReturnValueOnce('getFungibleTokens');
+      mockExecuteFunctions.helpers.httpRequest.mockRejectedValue(new Error('API Error'));
+      mockExecuteFunctions.continueOnFail.mockReturnValue(true);
+
+      const result = await executeFungibleTokensOperations.call(
+        mockExecuteFunctions, 
+        [{ json: {} }]
+      );
+
+      expect(result[0].json.error).toBe('API Error');
+    });
+  });
+
+  describe('getFungibleToken', () => {
+    it('should get specific fungible token successfully', async () => {
+      const mockResponse = { contract_id: 'SP123.token' };
+      mockExecuteFunctions.getNodeParameter
+        .mockReturnValueOnce('getFungibleToken')
+        .mockReturnValueOnce('SP123.token');
+      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
+
+      const result = await executeFungibleTokensOperations.call(
+        mockExecuteFunctions, 
+        [{ json: {} }]
+      );
+
+      expect(result).toEqual([{ 
+        json: mockResponse, 
+        pairedItem: { item: 0 } 
+      }]);
+    });
+  });
+
+  describe('getAddressFtEvents', () => {
+    it('should get address FT events successfully', async () => {
+      const mockResponse = { events: [{ event_type: 'ft_transfer' }] };
+      mockExecuteFunctions.getNodeParameter
+        .mockReturnValueOnce('getAddressFtEvents')
+        .mockReturnValueOnce('SP123ABC')
+        .mockReturnValueOnce(20)
+        .mockReturnValueOnce(0);
+      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
+
+      const result = await executeFungibleTokensOperations.call(
+        mockExecuteFunctions, 
+        [{ json: {} }]
+      );
+
+      expect(result).toEqual([{ 
+        json: mockResponse, 
+        pairedItem: { item: 0 } 
+      }]);
+    });
+  });
+
+  describe('getFungibleTokenMetadata', () => {
+    it('should get fungible token metadata successfully', async () => {
+      const mockResponse = { results: [{ name: 'Token', symbol: 'TKN' }] };
+      mockExecuteFunctions.getNodeParameter
+        .mockReturnValueOnce('getFungibleTokenMetadata')
+        .mockReturnValueOnce(20)
+        .mockReturnValueOnce(0);
+      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
+
+      const result = await executeFungibleTokensOperations.call(
+        mockExecuteFunctions, 
+        [{ json: {} }]
+      );
+
+      expect(result).toEqual([{ 
+        json: mockResponse, 
+        pairedItem: { item: 0 } 
+      }]);
+    });
+  });
+});
+
+describe('Stacking Resource', () => {
+  let mockExecuteFunctions: any;
+
+  beforeEach(() => {
+    mockExecuteFunctions = {
+      getNodeParameter: jest.fn(),
+      getCredentials: jest.fn().mockResolvedValue({ 
+        apiKey: 'test-key', 
+        baseUrl: 'https://api.hiro.so' 
+      }),
+      getInputData: jest.fn().mockReturnValue([{ json: {} }]),
+      getNode: jest.fn().mockReturnValue({ name: 'Test Node' }),
+      continueOnFail: jest.fn().mockReturnValue(false),
+      helpers: { 
+        httpRequest: jest.fn(),
+        requestWithAuthentication: jest.fn() 
+      },
+    };
+  });
+
+  it('should get PoX info successfully', async () => {
+    const mockResponse = {
+      contract_id: 'SP000000000000000000002Q6VF78.pox',
+      current_cycle: { id: 123, is_pox_active: true },
+    };
+    mockExecuteFunctions.getNodeParameter.mockReturnValue('getPoxInfo');
+    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
+
+    const result = await executeStackingOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].json).toEqual(mockResponse);
+  });
+
+  it('should get reward slot holders successfully', async () => {
+    const mockResponse = {
+      limit: 96,
+      offset: 0,
+      results: [{ canonical: true, burn_block_hash: 'hash123' }],
+    };
+    mockExecuteFunctions.getNodeParameter
+      .mockReturnValueOnce('getRewardSlotHolders')
+      .mockReturnValueOnce(800000)
+      .mockReturnValueOnce(50)
+      .mockReturnValueOnce(0);
+    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
+
+    const result = await executeStackingOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].json).toEqual(mockResponse);
+    expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith(
+      expect.objectContaining({
+        url: expect.stringContaining('reward_slot_holders/800000'),
+      })
+    );
+  });
+
+  it('should get burnchain rewards successfully', async () => {
+    const mockResponse = {
+      limit: 20,
+      offset: 0,
+      results: [{ canonical: true, burn_block_hash: 'hash123', reward_recipient: 'address123' }],
+    };
+    mockExecuteFunctions.getNodeParameter
+      .mockReturnValueOnce('getBurnchainRewards')
+      .mockReturnValueOnce('SP1234567890ABCDEF')
+      .mockReturnValueOnce(20)
+      .mockReturnValueOnce(0);
+    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
+
+    const result = await executeStackingOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].json).toEqual(mockResponse);
+    expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith(
+      expect.objectContaining({
+        url: expect.stringContaining('rewards/SP1234567890ABCDEF'),
+      })
+    );
+  });
+
+  it('should get all reward slot holders successfully', async () => {
+    const mockResponse = {
+      limit: 96,
+      offset: 0,
+      results: [{ canonical: true, burn_block_hash: 'hash123' }],
+    };
+    mockExecuteFunctions.getNodeParameter
+      .mockReturnValueOnce('getAllRewardSlotHolders')
+      .mockReturnValueOnce(100)
+      .mockReturnValueOnce(10);
+    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
+
+    const result = await executeStackingOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].json).toEqual(mockResponse);
+    expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith(
+      expect.objectContaining({
+        url: expect.stringContaining('reward_slot_holders?limit=100&offset=10'),
+      })
+    );
+  });
+
+  it('should handle API errors gracefully', async () => {
+    mockExecuteFunctions.getNodeParameter.mockReturnValue('getPoxInfo');
+    mockExecuteFunctions.helpers.httpRequest.mockRejectedValue(new Error('API Error'));
+    mockExecuteFunctions.continueOnFail.mockReturnValue(true);
+
+    const result = await executeStackingOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].json.error).toBe('API Error');
+  });
+
+  it('should throw error for unknown operation', async () => {
+    mockExecuteFunctions.getNodeParameter.mockReturnValue('unknownOperation');
+
+    await expect(executeStackingOperations.call(mockExecuteFunctions, [{ json: {} }])).rejects.toThrow(
+      'Unknown operation: unknownOperation'
+    );
   });
 });
 
@@ -1273,380 +1027,115 @@ describe('Names Resource', () => {
   beforeEach(() => {
     mockExecuteFunctions = {
       getNodeParameter: jest.fn(),
-      getCredentials: jest.fn().mockResolvedValue({
-        apiKey: 'test-api-key',
-        baseUrl: 'https://api.mainnet.hiro.so',
+      getCredentials: jest.fn().mockResolvedValue({ 
+        apiKey: 'test-key', 
+        baseUrl: 'https://api.hiro.so' 
       }),
       getInputData: jest.fn().mockReturnValue([{ json: {} }]),
       getNode: jest.fn().mockReturnValue({ name: 'Test Node' }),
       continueOnFail: jest.fn().mockReturnValue(false),
-      helpers: {
+      helpers: { 
         httpRequest: jest.fn(),
-        requestWithAuthentication: jest.fn(),
+        requestWithAuthentication: jest.fn() 
       },
     };
   });
 
-  describe('getNameInfo', () => {
-    it('should get name registration details successfully', async () => {
-      const mockResponse = {
-        name: 'test.btc',
-        address: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa',
-        status: 'registered',
-        expire_block: 123456,
-      };
-
-      mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-        if (param === 'operation') return 'getNameInfo';
-        if (param === 'name') return 'test.btc';
-        return '';
-      });
-
-      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-      const items = [{ json: {} }];
-      const result = await executeNamesOperations.call(mockExecuteFunctions, items);
-
-      expect(result).toHaveLength(1);
-      expect(result[0].json).toEqual(mockResponse);
-      expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-        method: 'GET',
-        url: 'https://api.mainnet.hiro.so/v1/names/test.btc',
-        headers: {
-          'Accept': 'application/json',
-          'Authorization': 'Bearer test-api-key',
-        },
-        json: true,
-      });
-    });
-  });
-
-  describe('getNamesByAddress', () => {
-    it('should get names owned by address successfully', async () => {
-      const mockResponse = {
-        names: ['test1.btc', 'test2.btc'],
-      };
-
-      mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-        if (param === 'operation') return 'getNamesByAddress';
-        if (param === 'address') return '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa';
-        return '';
-      });
-
-      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-      const items = [{ json: {} }];
-      const result = await executeNamesOperations.call(mockExecuteFunctions, items);
-
-      expect(result).toHaveLength(1);
-      expect(result[0].json).toEqual(mockResponse);
-      expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-        method: 'GET',
-        url: 'https://api.mainnet.hiro.so/v1/addresses/bitcoin/1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa',
-        headers: {
-          'Accept': 'application/json',
-          'Authorization': 'Bearer test-api-key',
-        },
-        json: true,
-      });
-    });
-  });
-
-  describe('getAllNamespaces', () => {
-    it('should get all namespaces successfully', async () => {
-      const mockResponse = {
-        namespaces: ['btc', 'id'],
-      };
-
-      mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-        if (param === 'operation') return 'getAllNamespaces';
-        return '';
-      });
-
-      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-      const items = [{ json: {} }];
-      const result = await executeNamesOperations.call(mockExecuteFunctions, items);
-
-      expect(result).toHaveLength(1);
-      expect(result[0].json).toEqual(mockResponse);
-      expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-        method: 'GET',
-        url: 'https://api.mainnet.hiro.so/v1/namespaces',
-        headers: {
-          'Accept': 'application/json',
-          'Authorization': 'Bearer test-api-key',
-        },
-        json: true,
-      });
-    });
-  });
-
-  describe('getAllNames', () => {
-    it('should get all names with pagination successfully', async () => {
-      const mockResponse = {
-        names: ['test1.btc', 'test2.btc'],
-        total: 100,
-        page: 1,
-      };
-
-      mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-        if (param === 'operation') return 'getAllNames';
-        if (param === 'page') return 1;
-        return '';
-      });
-
-      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-      const items = [{ json: {} }];
-      const result = await executeNamesOperations.call(mockExecuteFunctions, items);
-
-      expect(result).toHaveLength(1);
-      expect(result[0].json).toEqual(mockResponse);
-      expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-        method: 'GET',
-        url: 'https://api.mainnet.hiro.so/v1/names?page=1',
-        headers: {
-          'Accept': 'application/json',
-          'Authorization': 'Bearer test-api-key',
-        },
-        json: true,
-      });
-    });
-  });
-
-  describe('getSubdomainInfo', () => {
-    it('should get subdomain information successfully', async () => {
-      const mockResponse = {
-        subdomain: 'sub.test.btc',
-        owner: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa',
-        zonefile: 'zonefile content',
-      };
-
-      mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-        if (param === 'operation') return 'getSubdomainInfo';
-        if (param === 'subdomain') return 'sub.test.btc';
-        return '';
-      });
-
-      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-      const items = [{ json: {} }];
-      const result = await executeNamesOperations.call(mockExecuteFunctions, items);
-
-      expect(result).toHaveLength(1);
-      expect(result[0].json).toEqual(mockResponse);
-      expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-        method: 'GET',
-        url: 'https://api.mainnet.hiro.so/v1/subdomains/sub.test.btc',
-        headers: {
-          'Accept': 'application/json',
-          'Authorization': 'Bearer test-api-key',
-        },
-        json: true,
-      });
-    });
-  });
-
-  describe('error handling', () => {
-    it('should handle API errors correctly', async () => {
-      mockExecuteFunctions.getNodeParameter.mockImplementation((param: string) => {
-        if (param === 'operation') return 'getNameInfo';
-        if (param === 'name') return 'nonexistent.btc';
-        return '';
-      });
-
-      mockExecuteFunctions.helpers.httpRequest.mockRejectedValue(new Error('Name not found'));
-      mockExecuteFunctions.continueOnFail.mockReturnValue(true);
-
-      const items = [{ json: {} }];
-      const result = await executeNamesOperations.call(mockExecuteFunctions, items);
-
-      expect(result).toHaveLength(1);
-      expect(result[0].json.error).toBe('Name not found');
-    });
-  });
-});
-
-describe('FungibleTokens Resource', () => {
-  let mockExecuteFunctions: any;
-
-  beforeEach(() => {
-    mockExecuteFunctions = {
-      getNodeParameter: jest.fn(),
-      getCredentials: jest.fn().mockResolvedValue({
-        apiKey: 'test-api-key',
-        baseUrl: 'https://api.mainnet.hiro.so',
-      }),
-      getInputData: jest.fn().mockReturnValue([{ json: {} }]),
-      getNode: jest.fn().mockReturnValue({ name: 'Test Node' }),
-      continueOnFail: jest.fn().mockReturnValue(false),
-      helpers: {
-        httpRequest: jest.fn(),
-        requestWithAuthentication: jest.fn(),
-      },
+  test('getName - success', async () => {
+    const mockResponse = { 
+      name: 'example.btc',
+      address: 'SP2J6ZY48GV1EZ5V2V5RB9MP66SW86PYKKNRV9EJ7',
+      blockchain: 'stacks',
+      expire_block: 123456
     };
+    mockExecuteFunctions.getNodeParameter
+      .mockReturnValueOnce('getName')
+      .mockReturnValueOnce('example.btc');
+    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
+
+    const result = await executeNamesOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+    expect(result).toEqual([{ json: mockResponse, pairedItem: { item: 0 } }]);
   });
 
-  describe('getFtMetadata', () => {
-    it('should get fungible token metadata successfully', async () => {
-      const mockResponse = {
-        name: 'Test Token',
-        symbol: 'TEST',
-        decimals: 6,
-        description: 'A test fungible token',
-      };
+  test('getNamesByBitcoinAddress - success', async () => {
+    const mockResponse = { 
+      names: ['example1.btc', 'example2.btc'] 
+    };
+    mockExecuteFunctions.getNodeParameter
+      .mockReturnValueOnce('getNamesByBitcoinAddress')
+      .mockReturnValueOnce('1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa');
+    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
 
-      mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
-        if (paramName === 'operation') return 'getFtMetadata';
-        if (paramName === 'contractId') return 'SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.test-token';
-        return undefined;
-      });
+    const result = await executeNamesOperations.call(mockExecuteFunctions, [{ json: {} }]);
 
-      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-      const result = await executeFungibleTokensOperations.call(mockExecuteFunctions, [{ json: {} }]);
-
-      expect(result).toHaveLength(1);
-      expect(result[0].json).toEqual(mockResponse);
-      expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-        method: 'GET',
-        url: 'https://api.mainnet.hiro.so/extended/v1/tokens/ft/metadata',
-        qs: {
-          contract_id: 'SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.test-token',
-        },
-        headers: {
-          Authorization: 'Bearer test-api-key',
-        },
-        json: true,
-      });
-    });
-
-    it('should handle getFtMetadata error', async () => {
-      mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
-        if (paramName === 'operation') return 'getFtMetadata';
-        if (paramName === 'contractId') return 'invalid-contract';
-        return undefined;
-      });
-
-      mockExecuteFunctions.helpers.httpRequest.mockRejectedValue(new Error('Contract not found'));
-
-      await expect(
-        executeFungibleTokensOperations.call(mockExecuteFunctions, [{ json: {} }])
-      ).rejects.toThrow('Contract not found');
-    });
+    expect(result).toEqual([{ json: mockResponse, pairedItem: { item: 0 } }]);
   });
 
-  describe('getAllFungibleTokens', () => {
-    it('should get all fungible tokens successfully', async () => {
-      const mockResponse = {
-        results: [
-          { contract_id: 'SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.token1', name: 'Token 1' },
-          { contract_id: 'SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.token2', name: 'Token 2' },
-        ],
-        total: 2,
-      };
+  test('getNamesByStacksAddress - success', async () => {
+    const mockResponse = { 
+      names: ['example1.btc', 'example2.btc'] 
+    };
+    mockExecuteFunctions.getNodeParameter
+      .mockReturnValueOnce('getNamesByStacksAddress')
+      .mockReturnValueOnce('SP2J6ZY48GV1EZ5V2V5RB9MP66SW86PYKKNRV9EJ7');
+    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
 
-      mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string, index: number, defaultValue?: any) => {
-        if (paramName === 'operation') return 'getAllFungibleTokens';
-        if (paramName === 'limit') return defaultValue || 96;
-        if (paramName === 'offset') return defaultValue || 0;
-        return undefined;
-      });
+    const result = await executeNamesOperations.call(mockExecuteFunctions, [{ json: {} }]);
 
-      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-      const result = await executeFungibleTokensOperations.call(mockExecuteFunctions, [{ json: {} }]);
-
-      expect(result).toHaveLength(1);
-      expect(result[0].json).toEqual(mockResponse);
-      expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-        method: 'GET',
-        url: 'https://api.mainnet.hiro.so/extended/v1/tokens/ft',
-        qs: {
-          limit: 96,
-          offset: 0,
-        },
-        headers: {
-          Authorization: 'Bearer test-api-key',
-        },
-        json: true,
-      });
-    });
+    expect(result).toEqual([{ json: mockResponse, pairedItem: { item: 0 } }]);
   });
 
-  describe('getFtEvents', () => {
-    it('should get fungible token events successfully', async () => {
-      const mockResponse = {
-        events: [
-          {
-            event_type: 'ft_transfer_event',
-            asset_identifier: 'SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.test-token::test-token',
-            amount: '1000000',
-            sender: 'SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9',
-            recipient: 'SP2J6ZY48GV1EZ5V2V5RB9MP66SW86PYKKNRV9EJ7',
-          },
-        ],
-        total: 1,
-      };
+  test('getNamespaces - success', async () => {
+    const mockResponse = { 
+      namespaces: ['btc', 'id', 'app'] 
+    };
+    mockExecuteFunctions.getNodeParameter.mockReturnValueOnce('getNamespaces');
+    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
 
-      mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string, index: number, defaultValue?: any) => {
-        if (paramName === 'operation') return 'getFtEvents';
-        if (paramName === 'address') return 'SP2J6ZY48GV1EZ5V2V5RB9MP66SW86PYKKNRV9EJ7';
-        if (paramName === 'limit') return defaultValue || 96;
-        if (paramName === 'offset') return defaultValue || 0;
-        return undefined;
-      });
+    const result = await executeNamesOperations.call(mockExecuteFunctions, [{ json: {} }]);
 
-      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
-
-      const result = await executeFungibleTokensOperations.call(mockExecuteFunctions, [{ json: {} }]);
-
-      expect(result).toHaveLength(1);
-      expect(result[0].json).toEqual(mockResponse);
-      expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-        method: 'GET',
-        url: 'https://api.mainnet.hiro.so/extended/v1/address/SP2J6ZY48GV1EZ5V2V5RB9MP66SW86PYKKNRV9EJ7/ft_events',
-        qs: {
-          limit: 96,
-          offset: 0,
-        },
-        headers: {
-          Authorization: 'Bearer test-api-key',
-        },
-        json: true,
-      });
-    });
+    expect(result).toEqual([{ json: mockResponse, pairedItem: { item: 0 } }]);
   });
 
-  describe('getFtSupply', () => {
-    it('should get token supply successfully', async () => {
-      const mockResponse = {
-        total_supply: '21000000000000',
-        circulating_supply: '18500000000000',
-      };
+  test('getNamespaceNames - success', async () => {
+    const mockResponse = { 
+      names: ['name1.btc', 'name2.btc'],
+      total: 2,
+      page: 0
+    };
+    mockExecuteFunctions.getNodeParameter
+      .mockReturnValueOnce('getNamespaceNames')
+      .mockReturnValueOnce('btc')
+      .mockReturnValueOnce(0);
+    mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
 
-      mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
-        if (paramName === 'operation') return 'getFtSupply';
-        if (paramName === 'contractId') return 'SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.test-token';
-        return undefined;
-      });
+    const result = await executeNamesOperations.call(mockExecuteFunctions, [{ json: {} }]);
 
-      mockExecuteFunctions.helpers.httpRequest.mockResolvedValue(mockResponse);
+    expect(result).toEqual([{ json: mockResponse, pairedItem: { item: 0 } }]);
+  });
 
-      const result = await executeFungibleTokensOperations.call(mockExecuteFunctions, [{ json: {} }]);
+  test('error handling', async () => {
+    mockExecuteFunctions.getNodeParameter.mockReturnValueOnce('getName');
+    mockExecuteFunctions.helpers.httpRequest.mockRejectedValue(new Error('API Error'));
 
-      expect(result).toHaveLength(1);
-      expect(result[0].json).toEqual(mockResponse);
-      expect(mockExecuteFunctions.helpers.httpRequest).toHaveBeenCalledWith({
-        method: 'GET',
-        url: 'https://api.mainnet.hiro.so/extended/v1/tokens/ft/SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.test-token/supply',
-        headers: {
-          Authorization: 'Bearer test-api-key',
-        },
-        json: true,
-      });
-    });
+    await expect(executeNamesOperations.call(mockExecuteFunctions, [{ json: {} }])).rejects.toThrow('API Error');
+  });
+
+  test('continue on fail', async () => {
+    mockExecuteFunctions.getNodeParameter.mockReturnValueOnce('getName');
+    mockExecuteFunctions.helpers.httpRequest.mockRejectedValue(new Error('API Error'));
+    mockExecuteFunctions.continueOnFail.mockReturnValue(true);
+
+    const result = await executeNamesOperations.call(mockExecuteFunctions, [{ json: {} }]);
+
+    expect(result).toEqual([{ json: { error: 'API Error' }, pairedItem: { item: 0 } }]);
+  });
+
+  test('unknown operation', async () => {
+    mockExecuteFunctions.getNodeParameter.mockReturnValueOnce('unknownOperation');
+
+    await expect(executeNamesOperations.call(mockExecuteFunctions, [{ json: {} }])).rejects.toThrow('Unknown operation: unknownOperation');
   });
 });
 });
